@@ -50,6 +50,11 @@ namespace Chip_8.Controls
                         var pixel = new Rect(x * scaleX, y * scaleY, scaleX, scaleY);
                         context.FillRectangle(Brushes.White, pixel);
                     }
+                    else
+                    {
+                        var pixel = new Rect(x * scaleX, y * scaleY, scaleX, scaleY);
+                        context.FillRectangle(Brushes.Black, pixel);
+                    }
                 }
             }
         }

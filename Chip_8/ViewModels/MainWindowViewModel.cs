@@ -1,38 +1,31 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using System;
-using System.Timers;
+﻿using Chip_8.Models;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using System.Threading.Tasks;
 
 namespace Chip_8.ViewModels
 {
     public partial class MainWindowViewModel : ViewModelBase
     {
         [ObservableProperty]
-        private byte[] _buffer = new byte[64 * 32];
+        private byte[] _buffer = Display.Buffer;
 
-        private Timer _timer;
+        private Interpreter i;
 
         public MainWindowViewModel()
         {
-            for (int y = 0; y < 32; y++)
-            {
-                for (int x = 0; x < 64; x++)
-                {
-                    int i = y * 64 + x;
-                    Buffer[i] = (x + y) % 2 == 0 ? (byte)255 : (byte)0;
-                }
-            }
-            
-            _timer = new Timer(TimeSpan.FromMilliseconds(1000));
-            _timer.Elapsed += Alternate;
-            _timer.Start();
+            i = new Interpreter();
+
+            i.Initialize("C:\\Users\\jonas\\Downloads\\IBM Logo.ch8");
         }
 
-        private void Alternate(object sender, ElapsedEventArgs e)
+        [RelayCommand]
+        private void Execute()
         {
-            for (int i = 0; i < Buffer.Length; i++)
+            Task.Run(() =>
             {
-                Buffer[i] = (Buffer[i] == 255) ? (byte)0 : (byte)255;
-            }
+                i.Execute();
+            });
         }
     }
 }

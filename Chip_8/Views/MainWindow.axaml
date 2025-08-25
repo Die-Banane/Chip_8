@@ -27,6 +27,8 @@
 			Width="1280"
 			Height="640" />
 		
+		<Button Command="{Binding ExecuteCommand}" Content="Execute"/>
+		
 	</StackPanel>
 
 </Window>

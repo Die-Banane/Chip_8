@@ -1,18 +1,21 @@
-﻿using Avalonia.Input;
-using System;
+﻿using System.IO;
+using Avalonia.Input;
 using System.Collections.Generic;
-using System.Reflection.Metadata.Ecma335;
 using System.Timers;
+using System;
 
 namespace Chip_8.Models;
 
 internal class Interpreter
 {
     private Timer _timer;
+
+    private byte x, y, n, nn; // the nibbles
+    private ushort nnn;
     
     ushort i, pc; // Index Register, Program Counter
 
-    byte v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, vA, vB, vC, vD, vE, vF; // general purpose Registers
+    byte[] v = new byte[16]; // general purpose Registers
     byte delay, sound; 
 
     byte[] memory = new byte[4096];
@@ -60,75 +63,95 @@ internal class Interpreter
 
     };
 
-    public void Initialize()
+    public void Initialize(string program)
     {
-        _timer = new(16.6);
-        _timer.Elapsed += DecrementTimer;
-        _timer.Start();
-        
-        pc = 0x200;
+        LoadProgram(program);
 
-        stack = new();
-        
-        for (int i = 0; i < font.Length; i++)
+        for (int i = 0; i < font.Length; i++) // loads the font in memory
         {
             memory[0x50 + i] = font[i];
         }
+
+        pc = 0x200;
+
+        stack = new();
+
+        _timer = new(16.6);
+        _timer.Elapsed += DecrementTimers;
+        _timer.Start();
     }
 
-    private void loop()
+    public void Execute()
     {
-        ushort instruction = Fetch();
-
-        switch (instruction & 0xf000) // get first nibble
+        while (true)
         {
-            case 0x0000:
-                break;
+            ushort instruction = Fetch();
 
-            case 0x1000:
-                break;
+            switch (instruction & 0xf000) // get first nibble
+            {
+                case 0x0000:
+                    switch (nn)
+                    {
+                        case 0x00e0:
+                            Array.Fill<byte>(Display.Buffer, 0);
+                            break;
 
-            case 0x2000:
-                break;
+                        case 0x00ee:
+                            //subroutines
+                            break;
+                    }
+                    break;
 
-            case 0x3000:
-                break;
+                case 0x1000:
+                    pc = nnn;
+                    break;
 
-            case 0x4000:
-                break;
+                case 0x2000:
+                    break;
 
-            case 0x5000:
-                break;
+                case 0x3000:
+                    break;
 
-            case 0x6000:
-                break;
+                case 0x4000:
+                    break;
 
-            case 0x7000:
-                break;
+                case 0x5000:
+                    break;
 
-            case 0x8000:
-                break;
+                case 0x6000:
+                    v[x] = nn;
+                    break;
 
-            case 0x9000:
-                break;
+                case 0x7000:
+                    v[x] += nn;
+                    break;
 
-            case 0xa000:
-                break;
+                case 0x8000:
+                    break;
 
-            case 0xb000:
-                break;
+                case 0x9000:
+                    break;
 
-            case 0xc000:
-                break;
+                case 0xa000:
+                    i = nnn;
+                    break;
 
-            case 0xd000:
-                break;
+                case 0xb000:
+                    break;
 
-            case 0xe000:
-                break;
+                case 0xc000:
+                    break;
 
-            case 0xf000:
-                break;
+                case 0xd000:
+                    Draw();
+                    break;
+
+                case 0xe000:
+                    break;
+
+                case 0xf000:
+                    break;
+            }
         }
     }
 
@@ -136,12 +159,79 @@ internal class Interpreter
     {
         ushort instruction = (ushort)(memory[pc] << 8 | memory[pc + 1]);
         pc += 2;
+
+        x = (byte)((instruction & 0x0f00) >> 8);
+        y = (byte)((instruction & 0x00f0) >> 4);
+        n = (byte)(instruction & 0x000f);
+        nn = (byte)(instruction & 0x00ff);
+        nnn = (ushort)(instruction & 0x0fff);
+
         return instruction;
     }
 
-    private void DecrementTimer(object sender, ElapsedEventArgs e)
+    private void DecrementTimers(object? sender, ElapsedEventArgs e)
     {
         delay = delay > 0 ? (byte)(delay - 1) : (byte)0;
         sound = sound > 0 ? (byte)(sound - 1) : (byte)0;
+    }
+
+    private void LoadProgram(string program)
+    {
+        byte[] instructions = File.ReadAllBytes(program);
+
+        for (int i = 0; i < instructions.Length; i++)
+        {
+            memory[0x200 + i] = instructions[i];
+        }
+    }
+
+    private void Draw()
+    {
+        int xCoord = v[x] & 63;
+        int yCoord = v[y] & 31;
+
+        v[0xf] = 0;
+
+        for (int j = 0; j < n; j++)
+        {
+            byte row = memory[i + j];
+
+            foreach (var bit in ByteToBooleans(row))
+            {
+                if (xCoord < 64)
+                {
+                    if (Display.Buffer[yCoord * 64 + xCoord] == 255 && bit)
+                    {
+                        Display.Buffer[yCoord * 64 + xCoord] = 0;
+                        v[0xf] = 1;
+                    }
+                    else if (Display.Buffer[yCoord * 64 + xCoord] == 0 && bit)
+                    {
+                        Display.Buffer[yCoord * 64 + xCoord] = 255;
+                    }
+                }
+
+                xCoord++;
+            }
+
+            xCoord -= 8;
+            yCoord++;
+        }
+    }
+
+    private bool[] ByteToBooleans(byte value)
+    {
+        bool[] result = new bool[8];
+
+        result[7] = (value & 0x01) == 0x01;
+        result[6] = (value & 0x02) == 0x02;
+        result[5] = (value & 0x04) == 0x04;
+        result[4] = (value & 0x08) == 0x08;
+        result[3] = (value & 0x10) == 0x10;
+        result[2] = (value & 0x20) == 0x20;
+        result[1] = (value & 0x40) == 0x40;
+        result[0] = (value & 0x80) == 0x80;
+
+        return result;
     }
 }

@@ -1,9 +1,6 @@
-﻿using System;
-using System.Timers;
+﻿namespace Chip_8.Models;
 
-namespace Chip_8.Models;
-
-internal class Display
+internal static class Display
 {
-    public byte[] Buffer { get; set; } = new byte[64 * 32];
+    public static byte[] Buffer { get; set; } = new byte[64 * 32];
 }
