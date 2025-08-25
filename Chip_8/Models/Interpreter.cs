@@ -200,14 +200,14 @@ internal class Interpreter
             {
                 if (xCoord < 64)
                 {
-                    if (Display.Buffer[yCoord * 64 + xCoord] == 255 && bit)
+                    if (Display.Buffer[yCoord * Display.Width + xCoord] == 255 && bit)
                     {
-                        Display.Buffer[yCoord * 64 + xCoord] = 0;
+                        Display.Buffer[yCoord * Display.Width + xCoord] = 0;
                         v[0xf] = 1;
                     }
-                    else if (Display.Buffer[yCoord * 64 + xCoord] == 0 && bit)
+                    else if (Display.Buffer[yCoord * Display.Width + xCoord] == 0 && bit)
                     {
-                        Display.Buffer[yCoord * 64 + xCoord] = 255;
+                        Display.Buffer[yCoord * Display.Width + xCoord] = 255;
                     }
                 }
 
