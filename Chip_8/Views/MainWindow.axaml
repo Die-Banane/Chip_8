@@ -20,14 +20,38 @@
 	<StackPanel
 		VerticalAlignment="Center"
 		HorizontalAlignment="Center">
+
+		<StackPanel
+			Orientation="Horizontal">
+			
+			<Button
+				Command="{Binding OpenFileCommand}"
+				Content="Search files"
+				HorizontalAlignment="Center"
+				VerticalAlignment="Center" />
+
+			<Button
+				Command="{Binding ExecuteCommand}"
+				Content="Execute program"
+				HorizontalAlignment="Center"
+				VerticalAlignment="Center" />
+
+			<Button
+				Content="Terminate program"
+				HorizontalAlignment="Center"
+				VerticalAlignment="Center" />
+
+		</StackPanel>
+		
+		<TextBlock 
+			Text="{Binding Program}"
+			IsVisible="{Binding CanRun}" />
 		
 		<controls:DisplayControl
 			Buffer="{Binding Buffer}"
 			x:Name="Screen"
 			Width="1280"
 			Height="640" />
-		
-		<Button Command="{Binding ExecuteCommand}" Content="Execute"/>
 		
 	</StackPanel>
 

@@ -2,6 +2,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Threading.Tasks;
+using Chip_8.Services;
 
 namespace Chip_8.ViewModels
 {
@@ -10,22 +11,38 @@ namespace Chip_8.ViewModels
         [ObservableProperty]
         private byte[] _buffer = Display.Buffer;
 
-        private Interpreter i;
+        [ObservableProperty]
+        private string? _program;
+
+        [ObservableProperty]
+        [NotifyCanExecuteChangedFor(nameof(ExecuteCommand))]
+        private bool _canRun;
+
+        private IDialogService _dialogService;
+        private Interpreter _chip8;
 
         public MainWindowViewModel()
-        {
-            i = new Interpreter();
+        {   
+            _chip8 = new Interpreter();
+            _dialogService = new DialogService();
+        }
 
-            i.Initialize("C:\\Users\\jonas\\Downloads\\IBM Logo.ch8");
+        [RelayCommand(CanExecute = nameof(CanRun))]
+        private async Task Execute()
+        {   
+            if (Program is not null)
+            {
+                CanRun = false;
+                _chip8?.Initialize(Program);
+                await Task.Run(_chip8!.Execute);
+            }
         }
 
         [RelayCommand]
-        private void Execute()
+        private async Task OpenFileAsync()
         {
-            Task.Run(() =>
-            {
-                i.Execute();
-            });
+            Program = await _dialogService.ShowFileDialog();
+            CanRun = Program is not null;
         }
     }
 }

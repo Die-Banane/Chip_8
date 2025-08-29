@@ -3,12 +3,14 @@ using Avalonia.Input;
 using System.Collections.Generic;
 using System.Timers;
 using System;
+using System.Diagnostics;
 
 namespace Chip_8.Models;
 
 internal class Interpreter
 {
-    private Timer _timer;
+    private Timer? _timer;
+    private Timer? _executeTimer;
 
     private byte x, y, n, nn; // the nibbles
     private ushort nnn;
@@ -20,7 +22,7 @@ internal class Interpreter
 
     byte[] memory = new byte[4096];
 
-    Stack<byte> stack;
+    Stack<byte>? stack;
 
     private readonly byte[] font =
     {
@@ -73,7 +75,7 @@ internal class Interpreter
         }
 
         pc = 0x200;
-
+        
         stack = new();
 
         _timer = new(16.6);
@@ -143,7 +145,15 @@ internal class Interpreter
                     break;
 
                 case 0xd000:
-                    Draw();
+                    try
+                    {
+                        Draw();
+                    }
+                    catch(IndexOutOfRangeException e)
+                    {
+                        //Terminate()
+                        Debug.WriteLine("keine sorge das wird noch gefixt");
+                    }
                     break;
 
                 case 0xe000:
