@@ -1,0 +1,31 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="using:Chip_8"
+             x:Class="Chip_8.App"
+             RequestedThemeVariant="Dark">
+             <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
+
+    <Application.Styles>
+        <FluentTheme />
+        <StyleInclude Source="/Styles/ButtonStyles.axaml" />
+    </Application.Styles>
+             
+    <Application.DataTemplates>
+        <local:ViewLocator></local:ViewLocator>
+    </Application.DataTemplates>
+             
+    <Application.Resources>
+        <ResourceDictionary>
+            <Brush x:Key="BackgroundColor">#232323</Brush>
+            <Brush x:Key="ForegroundColor">#D1D3D5</Brush>
+            
+            <FontFamily x:Key="Phosphor-Thin">/Assets/Phosphor-Thin.ttf#Phosphor-Thin</FontFamily>
+            <FontFamily x:Key="Phosphor">/Assets/Phosphor.ttf#Phosphor</FontFamily>
+            
+            <ResourceDictionary.MergedDictionaries>
+                <MergeResourceInclude Source="/Styles/Combobox.axaml"></MergeResourceInclude>
+                <MergeResourceInclude Source="/Styles/ComboboxItem.axaml"></MergeResourceInclude>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

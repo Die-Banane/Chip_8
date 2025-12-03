@@ -1,0 +1,50 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:cc="using:Chip_8.CustomControls"
+             xmlns:vm="using:Chip_8.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="Chip_8.Views.MainView"
+             x:DataType="vm:MainViewModel">
+    
+    <UserControl.Styles>
+        <Style Selector="cc|HoverableRectangle">
+            <Setter Property="Stroke" Value="Black" />
+            <Setter Property="StrokeThickness" Value="2" />
+            <Setter Property="RadiusX" Value="10" />
+            <Setter Property="RadiusY" Value="10" />
+            <Setter Property="Fill" Value="#282828" />
+            <Setter Property="StrokeDashArray" Value="4" />
+            
+            <Style Selector="^:pointerover">
+                <Setter Property="Fill" Value="#343434" />
+            </Style>
+            
+            <Style Selector="^:click">
+                <Setter Property="Fill" Value="#4a4a4a" />
+            </Style>
+        </Style>
+    </UserControl.Styles>
+        
+    <Grid ColumnDefinitions="*, Auto , *"
+          RowDefinitions="*, *, Auto, *, *"
+          ShowGridLines="False">
+            
+        <cc:HoverableRectangle Grid.Column="1" Grid.Row="2" x:Name="FileDrop"
+                               DragDrop.AllowDrop="True" />
+        
+        <TextBlock Grid.Column="1" Grid.Row="2"
+                   Text="Drop File here or click to run a chip 8 program"
+                   Margin="50 100 50 100"
+                   IsHitTestVisible="False" />
+            
+        <Border Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="1" Grid.RowSpan="3" x:Name="ScreenIndicator"
+                IsHitTestVisible="False"
+                Background="{DynamicResource ForegroundColor}"
+                BorderBrush="White"
+                BorderThickness="1"
+                Opacity="0.3"
+                IsVisible="False" />
+    </Grid>
+</UserControl>
