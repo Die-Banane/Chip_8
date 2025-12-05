@@ -74,3 +74,4 @@ D:\Projekte\Chip_8\Chip_8\obj\Debug\net10.0\refint\Chip_8.dll
 D:\Projekte\Chip_8\Chip_8\obj\Debug\net10.0\Chip_8.pdb
 D:\Projekte\Chip_8\Chip_8\obj\Debug\net10.0\Chip_8.genruntimeconfig.cache
 D:\Projekte\Chip_8\Chip_8\obj\Debug\net10.0\ref\Chip_8.dll
+D:\Projekte\Chip_8\Chip_8\obj\Debug\net10.0\Chip_8.sourcelink.json

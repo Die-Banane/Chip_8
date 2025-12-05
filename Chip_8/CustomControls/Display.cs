@@ -21,7 +21,7 @@ public class Display : Control
     public override void Render(DrawingContext context)
     {
         base.Render(context);
-
+        
         context.PushRenderOptions(new RenderOptions
         {
             EdgeMode = EdgeMode.Aliased,

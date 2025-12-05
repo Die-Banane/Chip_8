@@ -8,10 +8,19 @@ public class Pixel
 
     public event Action? Changed;
 
-    public void Flip()
+    public void Flip(out bool turnedOff)
     {
+        turnedOff = IsOn;
+        
         IsOn = !IsOn;
 
+        Changed?.Invoke();
+    }
+    
+    public void Clear()
+    {
+        IsOn = false;
+        
         Changed?.Invoke();
     }
 }
