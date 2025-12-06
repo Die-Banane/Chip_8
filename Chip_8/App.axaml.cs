@@ -21,6 +21,7 @@ public partial class App : Application
 
         collection.AddSingleton<MainWindowViewModel>();
         collection.AddSingleton<DialogFactory>();
+        collection.AddSingleton<InterpreterService>();
         collection.AddTransient<ConfirmDialogWindow>();
         collection.AddTransient<MainViewModel>();
         

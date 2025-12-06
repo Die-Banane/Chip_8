@@ -11,7 +11,7 @@ public class VersionToValueConverter : IValueConverter
 {
     private readonly List<KeyValuePair<string, Chip8Versions>> _versions = new()
     {
-        new("Chip 8", Chip8Versions.Chip8),
+        new("Chip 8 (Legacy)", Chip8Versions.Legacy),
         new("Super-Chip", Chip8Versions.SuperChip),
         new("XO-Chip", Chip8Versions.XoChip)
     };

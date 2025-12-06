@@ -2,7 +2,7 @@
 
 public enum Chip8Versions
 {
-    Chip8,
+    Legacy,
     SuperChip,
     XoChip
 }

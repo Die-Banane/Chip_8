@@ -1,18 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Threading.Tasks;
 using Chip_8.CustomControls;
 using Chip_8.Interfaces;
-using Chip_8.ViewModels;
 
 namespace Chip_8.Interpreters;
 
-public class Interpreter : IInterpreter, IDisposable
+public class LegacyInterpreter : IInterpreter
 {
-    private readonly InterpreterOptions _options;
-
     private readonly Pixel[] _displayBuffer;
+    private string _programPath;
     
     private bool _executing;
     
@@ -49,9 +46,9 @@ public class Interpreter : IInterpreter, IDisposable
     //TODO: Timers
     //TODO: Keypads
 
-    public Interpreter(InterpreterOptions options, Pixel[] displayBuffer)
+    public LegacyInterpreter(Pixel[] displayBuffer, string programPath)
     {
-        _options = options;
+        _programPath = programPath;
         _displayBuffer = displayBuffer;
         
         Initialize();
@@ -67,7 +64,7 @@ public class Interpreter : IInterpreter, IDisposable
         
         font.CopyTo(memory, 0x50);
 
-        program = File.ReadAllBytes(_options.Path);
+        program = File.ReadAllBytes(_programPath);
 
         program.CopyTo(memory, 0x200);
         
@@ -178,10 +175,5 @@ public class Interpreter : IInterpreter, IDisposable
         result[7] = (value & (1 << 0)) != 0;
         
         return result;
-    }
-
-    public void Dispose()
-    {
-        throw new NotImplementedException();
     }
 }

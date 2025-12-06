@@ -18,7 +18,7 @@ partial class SettingsViewModel : ViewModelBase, IConfirmDialogContent
     [ObservableProperty]
     private ObservableCollection<KeyValuePair<string, Chip8Versions>> _versions = new()
     {
-        new("Chip 8", Chip8Versions.Chip8),
+        new("Chip 8 (Legacy)", Chip8Versions.Legacy),
         new("Super-Chip", Chip8Versions.SuperChip),
         new("XO-Chip", Chip8Versions.XoChip)
     };
@@ -31,7 +31,7 @@ partial class SettingsViewModel : ViewModelBase, IConfirmDialogContent
         new("Qwertz", KeyPadLayouts.Qwertz),
     };
     
-    [ObservableProperty] private Chip8Versions _selectedVersion = Chip8Versions.Chip8;
+    [ObservableProperty] private Chip8Versions _selectedVersion = Chip8Versions.Legacy;
     
     [ObservableProperty] private KeyPadLayouts _selectedLayout = KeyPadLayouts.CosmacVip;
 
