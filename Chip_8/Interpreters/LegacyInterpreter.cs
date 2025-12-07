@@ -92,11 +92,32 @@ public class LegacyInterpreter : IInterpreter
                             pixel.Clear();
                         }
                         break;
+                    
+                    case 0xee:
+                        pc = stack.Pop();
+                        break;
                 }
                 break;
                 
             case 0x1000:
                 pc = nnn;
+                break;
+            
+            case 0x02000:
+                stack.Push(pc);
+                pc = nnn;
+                break;
+            
+            case 0x3000:
+                pc += (ushort)(v[x] == nn ? 2 : 0);
+                break;
+            
+            case 0x4000:
+                pc += (ushort)(v[x] != nn ? 2 : 0);
+                break;
+            
+            case 0x5000:
+                pc += (ushort)(v[x] == v[y] ? 2 : 0);
                 break;
                 
             case 0x6000:
@@ -106,9 +127,68 @@ public class LegacyInterpreter : IInterpreter
             case 0x7000:
                 v[x] += nn;
                 break;
+            
+            case 0x8000:
+                switch (n)
+                {
+                    case 0x0000:
+                        v[x] = v[y];
+                        break;
+
+                    case 0x0001:
+                        v[x] = (byte)(v[x] | v[y]);
+                        break;
+                    
+                    case 0x0002:
+                        v[x] = (byte)(v[x] & v[y]);
+                        break;
+                    
+                    case 0x0003:
+                        v[x] = (byte)(v[x] ^ v[y]);
+                        break;
+                    
+                    case 0x0004:
+                        v[0xf] = (byte)(v[x] + v[y] > 255 ? 1 : 0);
+                        
+                        v[x] = (byte)(v[x] + v[y]);
+                        break;
+                    
+                    case 0x0005:
+                        v[0xf] = (byte)(v[x] > v[y] ? 1 : 0);
+                        
+                        v[x] = (byte)(v[x] - v[y]);
+                        break;
+                    
+                    case 0x0006:
+                        v[0xf] = (byte)(v[y] & 0x1);
+                        
+                        v[x] = (byte)(v[y] >> 1);
+                        break;
+                    
+                    case 0x0007:
+                        v[0xf] = (byte)(v[y] > v[x] ? 1 : 0);
+                        
+                        v[x] = (byte)(v[y] - v[x]);
+                        break;
+                    
+                    case 0x000e:
+                        v[0xf] = (byte)((v[y] & 0x80) == 0x80 ? 1 : 0);
+                        
+                        v[x] = (byte)(v[y] << 1);
+                        break;
+                }
+                break;
+            
+            case 0x9000:
+                pc += (ushort)(v[x] != v[y] ? 2 : 0);
+                break;
                 
             case 0xa000:
                 i = nnn;
+                break;
+            
+            case 0xb000:
+                pc = (ushort)(nnn + v[0]);
                 break;
             
             case 0xd000:
@@ -175,5 +255,10 @@ public class LegacyInterpreter : IInterpreter
         result[7] = (value & (1 << 0)) != 0;
         
         return result;
+    }
+
+    public void Dispose()
+    {
+        throw new NotImplementedException();
     }
 }

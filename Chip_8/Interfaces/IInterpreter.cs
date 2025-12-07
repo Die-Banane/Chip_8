@@ -1,8 +1,9 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 
 namespace Chip_8.Interfaces;
 
-public interface IInterpreter
+public interface IInterpreter : IDisposable
 {
     public void Run();
 }

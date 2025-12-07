@@ -13,6 +13,8 @@ public class InterpreterService
 
     public IInterpreter CreateInterpreter(InterpreterOptions options, Pixel[] displayBuffer)
     {
+        _currentInstance?.Dispose();
+        
         switch (options.Version)
         {
             case Chip8Versions.Legacy:
@@ -24,7 +26,7 @@ public class InterpreterService
                 return _currentInstance;
             
             case Chip8Versions.XoChip:
-                _currentInstance = new XOInterpreter();
+                _currentInstance = new XoInterpreter();
                 return _currentInstance;
             
             default:
