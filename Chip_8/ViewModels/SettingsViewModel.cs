@@ -26,14 +26,14 @@ partial class SettingsViewModel : ViewModelBase, IConfirmDialogContent
     [ObservableProperty]
     private ObservableCollection<KeyValuePair<string, KeyPadLayouts>> _layouts = new()
     {
-        new("COSMAC VIP", KeyPadLayouts.CosmacVip),
+        new("default", KeyPadLayouts.DefaultLayout),
         new("Qwerty", KeyPadLayouts.Qwerty),
         new("Qwertz", KeyPadLayouts.Qwertz),
     };
     
     [ObservableProperty] private Chip8Versions _selectedVersion = Chip8Versions.Legacy;
     
-    [ObservableProperty] private KeyPadLayouts _selectedLayout = KeyPadLayouts.CosmacVip;
+    [ObservableProperty] private KeyPadLayouts _selectedLayout = KeyPadLayouts.DefaultLayout;
 
     [ObservableProperty] private string _path = string.Empty;
     

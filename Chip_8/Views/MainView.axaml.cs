@@ -31,8 +31,7 @@ public partial class MainView : UserControl
         
         if (DataContext is MainViewModel vm)
         {
-            if (e.DataTransfer.TryGetFile() is not { } file)
-                return;
+            if (e.DataTransfer.TryGetFile() is not { } file) return;
             
             var path = file.Path.AbsolutePath;
             

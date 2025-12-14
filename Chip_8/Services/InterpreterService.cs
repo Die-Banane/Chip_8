@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using Avalonia.Input;
 using Chip_8.config;
 using Chip_8.CustomControls;
 using Chip_8.Interfaces;
@@ -7,27 +9,59 @@ using Chip_8.ViewModels;
 
 namespace Chip_8.Services;
 
-public class InterpreterService
+public class InterpreterService(Keyboard keyboardService)
 {
-    private IInterpreter? _currentInstance;
+    private readonly Dictionary<Key, byte> defaultKeyMap = new()
+    {
+        { Key.D1, 0x1 },
+        { Key.D2, 0x2 },
+        { Key.D3, 0x3 },
+        { Key.D4, 0x4 },
+        { Key.D5, 0x5 },
+        { Key.D6, 0x6 },
+        { Key.D7, 0x7 },
+        { Key.D8, 0x8 },
+        { Key.D9, 0x9 },
+        { Key.A, 0xa },
+        { Key.B, 0xb },
+        { Key.C, 0xc },
+        { Key.D, 0xd },
+        { Key.E, 0xe },
+        { Key.F, 0xf },
+    };
+    
+    public IInterpreter? CurrentInstance { get; private set; }
 
     public IInterpreter CreateInterpreter(InterpreterOptions options, Pixel[] displayBuffer)
     {
-        _currentInstance?.Dispose();
+        CurrentInstance?.Dispose();
+        
+        Dictionary<Key, byte> keyMap;
+
+        switch (options.Layout)
+        {
+            case KeyPadLayouts.DefaultLayout:
+                keyMap = defaultKeyMap;
+                keyboardService.KeyMap = keyMap;
+                break;
+            
+            default:
+                throw new InvalidOperationException();
+        }
         
         switch (options.Version)
         {
             case Chip8Versions.Legacy:
-                _currentInstance = new LegacyInterpreter(displayBuffer, options.Path);
-                return _currentInstance;
+                CurrentInstance = new LegacyInterpreter(displayBuffer, options.Path, keyMap, keyboardService);
+                return CurrentInstance;
             
             case Chip8Versions.SuperChip:
-                _currentInstance = new SuperInterpreter();
-                return _currentInstance;
+                CurrentInstance = new SuperInterpreter();
+                return CurrentInstance;
             
             case Chip8Versions.XoChip:
-                _currentInstance = new XoInterpreter();
-                return _currentInstance;
+                CurrentInstance = new XoInterpreter();
+                return CurrentInstance;
             
             default:
                 throw new InvalidOperationException();

@@ -2,7 +2,7 @@
 
 public enum KeyPadLayouts
 {
-    CosmacVip,
+    DefaultLayout,
     Qwerty,
     Qwertz
 }

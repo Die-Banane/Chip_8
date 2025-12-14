@@ -1,15 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using Avalonia.Input;
 using Chip_8.CustomControls;
 using Chip_8.Interfaces;
+using Chip_8.Services;
 
 namespace Chip_8.Interpreters;
 
 public class LegacyInterpreter : IInterpreter
 {
     private readonly Pixel[] _displayBuffer;
-    private string _programPath;
+    private readonly string  _programPath;
+    private readonly Random _random;
+    private readonly Keyboard _keyboardService;
     
     private bool _executing;
     
@@ -46,10 +50,18 @@ public class LegacyInterpreter : IInterpreter
     //TODO: Timers
     //TODO: Keypads
 
-    public LegacyInterpreter(Pixel[] displayBuffer, string programPath)
+    public Dictionary<Key, byte>? KeyMap { get; }
+
+    public LegacyInterpreter(Pixel[] displayBuffer, 
+        string programPath, 
+        Dictionary<Key, byte>? keyMap,
+        Keyboard keyboardService)
     {
+        KeyMap = keyMap;
+        _keyboardService = keyboardService;
         _programPath = programPath;
         _displayBuffer = displayBuffer;
+        _random = new Random();
         
         Initialize();
     }
@@ -93,7 +105,7 @@ public class LegacyInterpreter : IInterpreter
                         }
                         break;
                     
-                    case 0xee:
+                    case 0x00ee:
                         pc = stack.Pop();
                         break;
                 }
@@ -191,8 +203,45 @@ public class LegacyInterpreter : IInterpreter
                 pc = (ushort)(nnn + v[0]);
                 break;
             
+            case 0xc000:
+                byte rnd = (byte)_random.NextInt64(0, 255);
+
+                v[x] = (byte)(rnd & nn);
+                break;
+                
             case 0xd000:
                 Draw();
+                break;
+            
+            case 0xe000:
+                switch (nn)
+                {
+                    case 0x009e:
+                        if (_keyboardService.IsKeyDown(v[x]))
+                            pc += 2;
+                        break;
+                    
+                    case 0x00a1:
+                        if (!_keyboardService.IsKeyDown(v[x]))
+                            pc += 2;
+                        break;
+                }
+                break;
+            
+            case 0xf000:
+                switch (nn)
+                {
+                    case 0x000a:
+                        if (_keyboardService.TryConsumeLastPressedKey(out byte key))
+                        {
+                            v[x] = key;
+                        }
+                        else
+                        {
+                            pc -= 2;
+                        }
+                        break;
+                }
                 break;
         }
     }

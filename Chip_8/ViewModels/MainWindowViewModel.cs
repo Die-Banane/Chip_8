@@ -7,10 +7,12 @@ namespace Chip_8.ViewModels;
 partial class MainWindowViewModel : ViewModelBase
 {
     [ObservableProperty] private ViewModelBase _currentView;
+    [ObservableProperty] private Keyboard _keyboard;
 
-    public MainWindowViewModel(MainViewModel currentView, InterpreterService interpreterService)
+    public MainWindowViewModel(MainViewModel currentView, Keyboard keyboard, InterpreterService interpreterService)
     {
         CurrentView = currentView;
+        Keyboard = keyboard;
         
         WeakReferenceMessenger.Default.Register<InitializeInterpreterMessage>(this, (_, m) =>
         {

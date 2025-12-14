@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Chip_8.CustomControls;
 using Chip_8.Interfaces;
 using Chip_8.Services;

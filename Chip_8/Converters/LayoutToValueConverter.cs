@@ -11,7 +11,7 @@ public class LayoutToValueConverter : IValueConverter
 {
     private readonly List<KeyValuePair<string, KeyPadLayouts>> _layouts = new()
     {
-        new("COSMAC VIP", KeyPadLayouts.CosmacVip),
+        new("default", KeyPadLayouts.DefaultLayout),
         new("Qwerty", KeyPadLayouts.Qwerty),
         new("Qwertz", KeyPadLayouts.Qwertz),
     };

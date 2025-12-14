@@ -18,4 +18,4 @@ partial class MainViewModel(DialogFactory factory) : ViewModelBase
     }
 }
 
-public class InitializeInterpreterMessage(InterpreterOptions value) : ValueChangedMessage<InterpreterOptions>(value);
+public sealed class InitializeInterpreterMessage(InterpreterOptions value) : ValueChangedMessage<InterpreterOptions>(value);
