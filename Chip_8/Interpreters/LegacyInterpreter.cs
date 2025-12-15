@@ -231,6 +231,10 @@ public class LegacyInterpreter : IInterpreter
             case 0xf000:
                 switch (nn)
                 {
+                    case 0x0029:
+                        i = (ushort)(0x50 + 5 * (v[x] & 0xf));
+                        break;
+                        
                     case 0x000a:
                         if (_keyboardService.TryConsumeLastPressedKey(out byte key))
                         {
@@ -256,7 +260,7 @@ public class LegacyInterpreter : IInterpreter
         for (int j = 0; j < n; j++)
         {
             byte row = memory[i + j];
-
+            
             int tempX = xPos;
             
             for (int k = 7; k >= 0; k--)
