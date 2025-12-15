@@ -252,27 +252,28 @@ public class LegacyInterpreter : IInterpreter
         int yPos = v[y] % 32;
 
         v[0xf] = 0;
-
+        
         for (int j = 0; j < n; j++)
         {
             byte row = memory[i + j];
 
-            foreach(var pixel in ByteToBoolean(row))
-            {
-                if (pixel)
-                {
-                    _displayBuffer[yPos * 64 + xPos].Flip(out bool turnedOff);
-                    v[0xf] = turnedOff || v[0xf] == 1 ? (byte)1 : (byte)0;
-                }
-                
-                if (xPos++ >= 64)
-                    break;
-            }
-
-            xPos -= 8;
+            int tempX = xPos;
             
-            if (yPos++ >= 32)
-                break;
+            for (int k = 7; k >= 0; k--)
+            {
+                if (tempX >= 64 || yPos >= 32)
+                    break;
+                
+                bool curPixel = (row & 1 << k) != 0;
+
+                if (curPixel)
+                {
+                    _displayBuffer[yPos * 64 + tempX].Flip(out bool off);
+                    v[0xf] = off || v[0xf] == 1 ? (byte)1 : (byte)0;
+                }
+                tempX++;
+            }
+            yPos++;
         }
     }
 
@@ -288,22 +289,6 @@ public class LegacyInterpreter : IInterpreter
 
         pc += 2;
         return opCode;
-    }
-
-    private bool[] ByteToBoolean(byte value)
-    {
-        bool[] result = new  bool[8];
-        
-        result[0] = (value & (1 << 7)) != 0;
-        result[1] = (value & (1 << 6)) != 0;
-        result[2] = (value & (1 << 5)) != 0;
-        result[3] = (value & (1 << 4)) != 0;
-        result[4] = (value & (1 << 3)) != 0;
-        result[5] = (value & (1 << 2)) != 0;
-        result[6] = (value & (1 << 1)) != 0;
-        result[7] = (value & (1 << 0)) != 0;
-        
-        return result;
     }
 
     public void Dispose()
