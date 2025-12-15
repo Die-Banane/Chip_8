@@ -9,12 +9,12 @@ namespace Chip_8.Converters;
 
 public class LayoutToValueConverter : IValueConverter
 {
-    private readonly List<KeyValuePair<string, KeyPadLayouts>> _layouts = new()
-    {
-        new("default", KeyPadLayouts.DefaultLayout),
+    private readonly List<KeyValuePair<string, KeyPadLayouts>> _layouts =
+    [
         new("Qwerty", KeyPadLayouts.Qwerty),
         new("Qwertz", KeyPadLayouts.Qwertz),
-    };
+        new("Azerty", KeyPadLayouts.Azerty)
+    ];
     
     public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {

@@ -11,24 +11,24 @@ namespace Chip_8.Services;
 
 public class InterpreterService(Keyboard keyboardService)
 {
-    private readonly Dictionary<Key, byte> defaultKeyMap = new()
+    private readonly Dictionary<Key, byte> azertyKeyMap = new()
     {
-        { Key.D0, 0x0 },
+        { Key.X, 0x0 },
         { Key.D1, 0x1 },
         { Key.D2, 0x2 },
         { Key.D3, 0x3 },
-        { Key.D4, 0x4 },
-        { Key.D5, 0x5 },
-        { Key.D6, 0x6 },
-        { Key.D7, 0x7 },
-        { Key.D8, 0x8 },
-        { Key.D9, 0x9 },
-        { Key.A, 0xa },
-        { Key.B, 0xb },
-        { Key.C, 0xc },
-        { Key.D, 0xd },
-        { Key.E, 0xe },
-        { Key.F, 0xf }
+        { Key.A, 0x4 },
+        { Key.Z, 0x5 },
+        { Key.E, 0x6 },
+        { Key.Q, 0x7 },
+        { Key.S, 0x8 },
+        { Key.D, 0x9 },
+        { Key.W, 0xa },
+        { Key.C, 0xb },
+        { Key.D4, 0xc },
+        { Key.R, 0xd },
+        { Key.F, 0xe },
+        { Key.V, 0xf }
     };
     
     private readonly Dictionary<Key, byte> qwertzKeyMap = new()
@@ -70,17 +70,22 @@ public class InterpreterService(Keyboard keyboardService)
         { Key.F, 0xe },
         { Key.V, 0xf }
     };
-    
-    public IInterpreter? CurrentInstance { get; private set; }
+
+    private IInterpreter? _currentInstance;
 
     public IInterpreter CreateInterpreter(InterpreterOptions options, Pixel[] displayBuffer)
     {
-        CurrentInstance?.Dispose();
+        _currentInstance?.Dispose();
         
         Dictionary<Key, byte> keyMap;
 
         switch (options.Layout)
         {
+            case KeyPadLayouts.Azerty:
+                keyMap = azertyKeyMap;
+                keyboardService.KeyMap = keyMap;
+                break;
+            
             case KeyPadLayouts.Qwertz:
                 keyMap = qwertzKeyMap;
                 keyboardService.KeyMap = keyMap;
@@ -98,16 +103,16 @@ public class InterpreterService(Keyboard keyboardService)
         switch (options.Version)
         {
             case Chip8Versions.Legacy:
-                CurrentInstance = new LegacyInterpreter(displayBuffer, options.Path, keyMap, keyboardService);
-                return CurrentInstance;
+                _currentInstance = new LegacyInterpreter(displayBuffer, options.Path, keyMap, keyboardService);
+                return _currentInstance;
             
             case Chip8Versions.SuperChip:
-                CurrentInstance = new SuperInterpreter();
-                return CurrentInstance;
+                _currentInstance = new SuperInterpreter();
+                return _currentInstance;
             
             case Chip8Versions.XoChip:
-                CurrentInstance = new XoInterpreter();
-                return CurrentInstance;
+                _currentInstance = new XoInterpreter();
+                return _currentInstance;
             
             default:
                 throw new InvalidOperationException();

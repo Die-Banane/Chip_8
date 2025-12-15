@@ -2,7 +2,7 @@
 
 public enum KeyPadLayouts
 {
-    DefaultLayout,
     Qwerty,
-    Qwertz
+    Qwertz,
+    Azerty
 }

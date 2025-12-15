@@ -16,24 +16,24 @@ namespace Chip_8.ViewModels;
 partial class SettingsViewModel : ViewModelBase, IConfirmDialogContent
 {
     [ObservableProperty]
-    private ObservableCollection<KeyValuePair<string, Chip8Versions>> _versions = new()
-    {
+    private ObservableCollection<KeyValuePair<string, Chip8Versions>> _versions =
+    [
         new("Chip 8 (Legacy)", Chip8Versions.Legacy),
         new("Super-Chip", Chip8Versions.SuperChip),
         new("XO-Chip", Chip8Versions.XoChip)
-    };
+    ];
     
     [ObservableProperty]
-    private ObservableCollection<KeyValuePair<string, KeyPadLayouts>> _layouts = new()
-    {
-        new("default", KeyPadLayouts.DefaultLayout),
+    private ObservableCollection<KeyValuePair<string, KeyPadLayouts>> _layouts =
+    [
         new("Qwerty", KeyPadLayouts.Qwerty),
         new("Qwertz", KeyPadLayouts.Qwertz),
-    };
+        new("Azerty", KeyPadLayouts.Azerty)
+    ];
     
     [ObservableProperty] private Chip8Versions _selectedVersion = Chip8Versions.Legacy;
     
-    [ObservableProperty] private KeyPadLayouts _selectedLayout = KeyPadLayouts.DefaultLayout;
+    [ObservableProperty] private KeyPadLayouts _selectedLayout = KeyPadLayouts.Qwerty;
 
     [ObservableProperty] private string _path = string.Empty;
     
