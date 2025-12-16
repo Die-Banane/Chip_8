@@ -231,6 +231,10 @@ public class LegacyInterpreter : IInterpreter
             case 0xf000:
                 switch (nn)
                 {
+                    case 0x001e:
+                        i += v[x];
+                        break;
+                    
                     case 0x0029:
                         i = (ushort)(0x50 + 5 * (v[x] & 0xf));
                         break;
