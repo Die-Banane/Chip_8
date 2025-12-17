@@ -12,7 +12,7 @@ public class Keyboard
     
     private readonly HashSet<byte> _activeKeys = new();
 
-    public byte LastPressedKey { get; private set; } = InvalidKey;
+    private byte _lastPressedKey = InvalidKey;
 
     public void OnKeyDown(object? sender, KeyEventArgs e)
     {
@@ -21,7 +21,7 @@ public class Keyboard
         if (KeyMap.TryGetValue(e.Key, out var key))
         {
             _activeKeys.Add(key);
-            LastPressedKey = InvalidKey;
+            _lastPressedKey = InvalidKey;
             Console.WriteLine($"The Key {e.Key} with the corresponding Value {key} is down");
         }
     }
@@ -33,22 +33,22 @@ public class Keyboard
         if (KeyMap.TryGetValue(e.Key, out var key))
         {
             _activeKeys.Remove(key);
-            LastPressedKey = key;
+            _lastPressedKey = key;
             Console.WriteLine($"The Key {e.Key} with the corresponding Value {key} was released");
         }
-        
     }
     
+    //TODO: Fix this
     public bool TryConsumeLastPressedKey(out byte key)
     {
-        if (LastPressedKey == InvalidKey)
+        if (_lastPressedKey == InvalidKey)
         {
             key = InvalidKey;
             return false;
         }
 
-        key = LastPressedKey;
-        LastPressedKey = InvalidKey;
+        key = _lastPressedKey;
+        _lastPressedKey = InvalidKey;
         return true;
     }
     

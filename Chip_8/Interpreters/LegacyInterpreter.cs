@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
+using System.Timers;
 using Avalonia.Input;
 using Chip_8.CustomControls;
 using Chip_8.Interfaces;
@@ -14,6 +16,7 @@ public class LegacyInterpreter : IInterpreter
     private readonly string  _programPath;
     private readonly Random _random;
     private readonly Keyboard _keyboardService;
+    private readonly Timer _timer;
     
     private bool _executing;
     
@@ -44,11 +47,10 @@ public class LegacyInterpreter : IInterpreter
 
     private Stack<ushort> stack = null!;
 
-    private byte x, y, n, nn;
+    private byte x, y, n, nn, _soundTimer, _delayTimer;
     private ushort nnn;
     
-    //TODO: Timers
-    //TODO: Keypads
+    
 
     public Dictionary<Key, byte>? KeyMap { get; }
 
@@ -62,6 +64,9 @@ public class LegacyInterpreter : IInterpreter
         _programPath = programPath;
         _displayBuffer = displayBuffer;
         _random = new Random();
+        _timer = new(TimeSpan.FromMilliseconds(16.6));
+
+        _timer.Elapsed += Tick;
         
         Initialize();
     }
@@ -79,6 +84,8 @@ public class LegacyInterpreter : IInterpreter
         program = File.ReadAllBytes(_programPath);
 
         program.CopyTo(memory, 0x200);
+
+        _timer.Start();
         
         _executing = true;
     }
@@ -231,14 +238,10 @@ public class LegacyInterpreter : IInterpreter
             case 0xf000:
                 switch (nn)
                 {
-                    case 0x001e:
-                        i += v[x];
+                    case 0x0007:
+                        v[x] = _delayTimer;
                         break;
                     
-                    case 0x0029:
-                        i = (ushort)(0x50 + 5 * (v[x] & 0xf));
-                        break;
-                        
                     case 0x000a:
                         if (_keyboardService.TryConsumeLastPressedKey(out byte key))
                         {
@@ -249,7 +252,53 @@ public class LegacyInterpreter : IInterpreter
                             pc -= 2;
                         }
                         break;
+                    
+                    case 0x0015:
+                        _delayTimer = v[x];
+                        break;
+                    
+                    case 0x0018:
+                        _soundTimer = v[x];
+                        break;
+                    
+                    case 0x001e:
+                        v[0xf] = (byte)(i + v[x] > 0xfff ? 1 : 0);
+                        
+                        i += v[x];
+                        break;
+                    
+                    case 0x0029:
+                        i = (ushort)(0x50 + 5 * (v[x] & 0xf));
+                        break;
+                    
+                    case 0x0033:
+                        memory[i + 2] = (byte)(v[x] % 10);
+                        memory[i + 1] = (byte)(v[x] / 10 % 10);
+                        memory[i] =  (byte)(v[x] / 10 / 10);
+                        break;
+
+                    case 0x0055:
+                        for (int j = 0; j <= x; j++)
+                        {
+                            memory[i + j] = v[j];
+                        }
+
+                        i = (ushort)(i + x + 1);
+                        break;
+                    
+                    case 0x0065:
+                        for (int j = 0; j <= x; j++)
+                        {
+                            v[j] = memory[i + j];
+                        }
+
+                        i = (ushort)(i + x + 1);
+                        break;
                 }
+                break;
+            
+            default:
+                Debug.WriteLine("unknown OpCode");
                 break;
         }
     }
@@ -299,8 +348,14 @@ public class LegacyInterpreter : IInterpreter
         return opCode;
     }
 
-    public void Dispose()
+    private void Tick(object? sender, ElapsedEventArgs e)
     {
-        throw new NotImplementedException();
+        if (_soundTimer > 0)
+            _soundTimer--;
+        
+        if (_delayTimer > 0)
+            _delayTimer--;
     }
+
+    public void Dispose() => _timer.Dispose();
 }

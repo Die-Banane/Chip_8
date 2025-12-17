@@ -1,4 +1,5 @@
 ﻿using System;
+using Avalonia.Threading;
 
 namespace Chip_8.CustomControls;
 
@@ -14,13 +15,13 @@ public class Pixel
         
         IsOn = !IsOn;
 
-        Changed?.Invoke();
+        Dispatcher.UIThread.Post(() => Changed?.Invoke());
     }
     
     public void Clear()
     {
         IsOn = false;
         
-        Changed?.Invoke();
+        Dispatcher.UIThread.Post(() => Changed?.Invoke());
     }
 }
