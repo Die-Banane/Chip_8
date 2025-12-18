@@ -15,7 +15,7 @@ public class LegacyInterpreter : IInterpreter
     private readonly Pixel[] _displayBuffer;
     private readonly string  _programPath;
     private readonly Random _random;
-    private readonly Keyboard _keyboardService;
+    private readonly Keyboard _keyboard;
     private readonly Timer _timer;
     
     private bool _executing;
@@ -57,10 +57,10 @@ public class LegacyInterpreter : IInterpreter
     public LegacyInterpreter(Pixel[] displayBuffer, 
         string programPath, 
         Dictionary<Key, byte>? keyMap,
-        Keyboard keyboardService)
+        Keyboard keyboard)
     {
         KeyMap = keyMap;
-        _keyboardService = keyboardService;
+        _keyboard = keyboard;
         _programPath = programPath;
         _displayBuffer = displayBuffer;
         _random = new Random();
@@ -224,12 +224,12 @@ public class LegacyInterpreter : IInterpreter
                 switch (nn)
                 {
                     case 0x009e:
-                        if (_keyboardService.IsKeyDown(v[x]))
+                        if (_keyboard.IsKeyDown(v[x]))
                             pc += 2;
                         break;
                     
                     case 0x00a1:
-                        if (!_keyboardService.IsKeyDown(v[x]))
+                        if (!_keyboard.IsKeyDown(v[x]))
                             pc += 2;
                         break;
                 }
@@ -243,13 +243,20 @@ public class LegacyInterpreter : IInterpreter
                         break;
                     
                     case 0x000a:
-                        if (_keyboardService.TryConsumeLastPressedKey(out byte key))
+                        if(!_keyboard.WaitingForKey)
                         {
-                            v[x] = key;
+                            _keyboard.WaitingForKey = true;
+                            _keyboard.PendingKey = Keyboard.InvalidKey;
+                        }
+
+                        if (_keyboard.PendingKey == Keyboard.InvalidKey)
+                        {
+                            pc -= 2;
                         }
                         else
                         {
-                            pc -= 2;
+                            v[x] = _keyboard.PendingKey;
+                            _keyboard.PendingKey = Keyboard.InvalidKey;
                         }
                         break;
                     

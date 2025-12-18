@@ -6,13 +6,15 @@ namespace Chip_8.Services;
 
 public class Keyboard
 {
-    private const byte InvalidKey = 0xff;
-    
-    public Dictionary<Key, byte>? KeyMap { get; set; }
-    
+    public static readonly byte InvalidKey = 0xff;
+
     private readonly HashSet<byte> _activeKeys = new();
 
-    private byte _lastPressedKey = InvalidKey;
+    public bool WaitingForKey { get; set; }
+    
+    public Dictionary<Key, byte>? KeyMap { get; set; }
+
+    public byte PendingKey { get; set; } = InvalidKey;
 
     public void OnKeyDown(object? sender, KeyEventArgs e)
     {
@@ -21,7 +23,6 @@ public class Keyboard
         if (KeyMap.TryGetValue(e.Key, out var key))
         {
             _activeKeys.Add(key);
-            _lastPressedKey = InvalidKey;
             Console.WriteLine($"The Key {e.Key} with the corresponding Value {key} is down");
         }
     }
@@ -32,24 +33,14 @@ public class Keyboard
 
         if (KeyMap.TryGetValue(e.Key, out var key))
         {
-            _activeKeys.Remove(key);
-            _lastPressedKey = key;
-            Console.WriteLine($"The Key {e.Key} with the corresponding Value {key} was released");
-        }
-    }
-    
-    //TODO: Fix this
-    public bool TryConsumeLastPressedKey(out byte key)
-    {
-        if (_lastPressedKey == InvalidKey)
-        {
-            key = InvalidKey;
-            return false;
-        }
+            if (WaitingForKey)
+            {
+                PendingKey = key;
+                WaitingForKey = false;
+            }
 
-        key = _lastPressedKey;
-        _lastPressedKey = InvalidKey;
-        return true;
+            _activeKeys.Remove(key);
+        }
     }
     
     public bool IsKeyDown(byte key) => _activeKeys.Contains(key);
