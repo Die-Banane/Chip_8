@@ -33,12 +33,12 @@ public class Keyboard
 
         if (KeyMap.TryGetValue(e.Key, out var key))
         {
+            _activeKeys.Remove(key);
+
             if (WaitingForKey)
             {
                 PendingKey = key;
             }
-
-            _activeKeys.Remove(key);
 
             Console.WriteLine($"The Key {e.Key} with the corresponding Value {key} was released");
         }
