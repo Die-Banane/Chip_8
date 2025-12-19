@@ -36,10 +36,11 @@ public class Keyboard
             if (WaitingForKey)
             {
                 PendingKey = key;
-                WaitingForKey = false;
             }
 
             _activeKeys.Remove(key);
+
+            Console.WriteLine($"The Key {e.Key} with the corresponding Value {key} was released");
         }
     }
     

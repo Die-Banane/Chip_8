@@ -257,6 +257,7 @@ public class LegacyInterpreter : IInterpreter
                         {
                             v[x] = _keyboard.PendingKey;
                             _keyboard.PendingKey = Keyboard.InvalidKey;
+                            _keyboard.WaitingForKey = false;
                         }
                         break;
                     
