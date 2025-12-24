@@ -167,15 +167,19 @@ public class LegacyInterpreter : IInterpreter
                         break;
                     
                     case 0x0004:
-                        v[0xf] = (byte)(v[x] + v[y] > 255 ? 1 : 0);
+                        byte sum = (byte)(v[x] + v[y]);
                         
-                        v[x] = (byte)(v[x] + v[y]);
+                        v[x] = sum;
+
+                        v[0xf] = (byte)(v[x] + v[y] > 255 ? 1 : 0);
                         break;
                     
                     case 0x0005:
-                        v[0xf] = (byte)(v[x] > v[y] ? 1 : 0);
-                        
-                        v[x] = (byte)(v[x] - v[y]);
+                        sum = (byte)(v[x] - v[y]);
+                        byte carry = (byte)(v[x] >= v[y] ? 1 : 0);
+
+                        v[x] = sum;
+                        v[0xf] = carry;
                         break;
                     
                     case 0x0006:
@@ -185,9 +189,11 @@ public class LegacyInterpreter : IInterpreter
                         break;
                     
                     case 0x0007:
-                        v[0xf] = (byte)(v[y] > v[x] ? 1 : 0);
+                        sum = (byte)(v[y] - v[x]);
+                        carry = (byte)(v[y] >= v[x] ? 1 : 0);
                         
-                        v[x] = (byte)(v[y] - v[x]);
+                        v[x] = sum;
+                        v[0xf] = carry;
                         break;
                     
                     case 0x000e:
