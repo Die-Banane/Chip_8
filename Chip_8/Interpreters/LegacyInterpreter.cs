@@ -280,9 +280,10 @@ public class LegacyInterpreter : IInterpreter
                         break;
                     
                     case 0x001e:
+                        byte vX = v[x];
                         v[0xf] = (byte)(i + v[x] > 0xfff ? 1 : 0);
                         
-                        i += v[x];
+                        i += vX;
                         break;
                     
                     case 0x0029:
