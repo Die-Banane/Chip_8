@@ -1,48 +1,40 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Avalonia.Input;
 
 namespace Chip_8.Services;
 
 public class Keyboard
 {
-    public static readonly byte InvalidKey = 0xff;
+  public static readonly byte InvalidKey = 0xff;
 
-    private readonly HashSet<byte> _activeKeys = new();
+  private readonly HashSet<byte> _activeKeys = new();
 
-    public bool WaitingForKey { get; set; }
-    
-    public Dictionary<Key, byte>? KeyMap { get; set; }
+  public bool WaitingForKey { get; set; }
 
-    public byte PendingKey { get; set; } = InvalidKey;
+  public Dictionary<Key, byte>? KeyMap { get; set; }
 
-    public void OnKeyDown(object? sender, KeyEventArgs e)
+  public byte PendingKey { get; set; } = InvalidKey;
+
+  public void OnKeyDown(object? sender, KeyEventArgs e)
+  {
+    if (KeyMap is null) return;
+
+    if (KeyMap.TryGetValue(e.Key, out var key))
+      _activeKeys.Add(key);
+  }
+
+  public void OnKeyUp(object? sender, KeyEventArgs e)
+  {
+    if (KeyMap is null) return;
+
+    if (KeyMap.TryGetValue(e.Key, out var key))
     {
-        if (KeyMap is null) return;
+      _activeKeys.Remove(key);
 
-        if (KeyMap.TryGetValue(e.Key, out var key))
-        {
-            _activeKeys.Add(key);
-            Console.WriteLine($"The Key {e.Key} with the corresponding Value {key} is down");
-        }
+      if (WaitingForKey)
+        PendingKey = key;
     }
+  }
 
-    public void OnKeyUp(object? sender, KeyEventArgs e)
-    {
-        if (KeyMap is null) return;
-
-        if (KeyMap.TryGetValue(e.Key, out var key))
-        {
-            _activeKeys.Remove(key);
-
-            if (WaitingForKey)
-            {
-                PendingKey = key;
-            }
-
-            Console.WriteLine($"The Key {e.Key} with the corresponding Value {key} was released");
-        }
-    }
-    
-    public bool IsKeyDown(byte key) => _activeKeys.Contains(key);
+  public bool IsKeyDown(byte key) => _activeKeys.Contains(key);
 }

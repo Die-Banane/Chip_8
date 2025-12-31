@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Threading;
 using System.Timers;
 using Avalonia.Input;
 using Chip_8.CustomControls;
@@ -12,22 +13,22 @@ namespace Chip_8.Interpreters;
 
 public class LegacyInterpreter : IInterpreter
 {
-    private readonly Pixel[] _displayBuffer;
-    private readonly string  _programPath;
-    private readonly Random _random;
-    private readonly Keyboard _keyboard;
-    private readonly Timer _timer;
-    
-    private bool _executing;
-    
-    private ushort pc, i;
-    private byte[] v = null!;
-    
-    private byte[] memory = null!, program = null!;
+  private readonly Pixel[] _displayBuffer;
+  private readonly string _programPath;
+  private readonly Random _random;
+  private readonly Keyboard _keyboard;
+  private readonly System.Timers.Timer _timer;
 
-    private readonly byte[] font =
-    [
-        0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
+  private bool _executing;
+
+  private ushort pc, i;
+  private byte[] v = null!;
+
+  private byte[] memory = null!, program = null!;
+
+  private readonly byte[] font =
+  [
+      0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
         0x20, 0x60, 0x20, 0x20, 0x70, // 1
         0xF0, 0x10, 0xF0, 0x80, 0xF0, // 2
         0xF0, 0x10, 0xF0, 0x10, 0xF0, // 3
@@ -43,338 +44,340 @@ public class LegacyInterpreter : IInterpreter
         0xE0, 0x90, 0x90, 0x90, 0xE0, // D
         0xF0, 0x80, 0xF0, 0x80, 0xF0, // E
         0xF0, 0x80, 0xF0, 0x80, 0x80  // F
-    ];
+  ];
 
-    private Stack<ushort> stack = null!;
+  private Stack<ushort> stack = null!;
 
-    private byte x, y, n, nn, _soundTimer, _delayTimer;
-    private ushort nnn;
-    
-    
+  private byte x, y, n, nn, _soundTimer, _delayTimer;
+  private ushort nnn;
 
-    public Dictionary<Key, byte>? KeyMap { get; }
+  public Dictionary<Key, byte>? KeyMap { get; }
 
-    public LegacyInterpreter(Pixel[] displayBuffer, 
-        string programPath, 
-        Dictionary<Key, byte>? keyMap,
-        Keyboard keyboard)
+  public LegacyInterpreter(Pixel[] displayBuffer,
+      string programPath,
+      Dictionary<Key, byte>? keyMap,
+      Keyboard keyboard)
+  {
+    KeyMap = keyMap;
+    _keyboard = keyboard;
+    _programPath = programPath;
+    _displayBuffer = displayBuffer;
+    _random = new Random();
+    _timer = new(TimeSpan.FromMilliseconds(16.6));
+
+    _timer.Elapsed += Tick;
+
+    Initialize();
+  }
+
+  private void Initialize()
+  {
+    pc = 0x200;
+    v = new byte[16];
+
+    memory = new byte[4069];
+    stack = new Stack<ushort>();
+
+    font.CopyTo(memory, 0x50);
+
+    program = File.ReadAllBytes(_programPath);
+
+    program.CopyTo(memory, 0x200);
+
+    _timer.Start();
+
+    _executing = true;
+  }
+
+  public void Run()
+  {
+    while (_executing)
+      Step();
+  }
+
+  private void Step()
+  {
+    ushort opCode = FetchAndDecode();
+
+    switch (opCode & 0xf000)
     {
-        KeyMap = keyMap;
-        _keyboard = keyboard;
-        _programPath = programPath;
-        _displayBuffer = displayBuffer;
-        _random = new Random();
-        _timer = new(TimeSpan.FromMilliseconds(16.6));
-
-        _timer.Elapsed += Tick;
-        
-        Initialize();
-    }
-    
-    private void Initialize()
-    {
-        pc = 0x200;
-        v = new byte[16];
-        
-        memory = new byte[4069];
-        stack = new Stack<ushort>();
-        
-        font.CopyTo(memory, 0x50);
-
-        program = File.ReadAllBytes(_programPath);
-
-        program.CopyTo(memory, 0x200);
-
-        _timer.Start();
-        
-        _executing = true;
-    }
-
-    public void Run()
-    {
-        while (_executing)
-            Step();
-    }
-
-    private void Step()
-    {
-        ushort opCode = FetchAndDecode();
-
-        switch (opCode & 0xf000)
+      case 0x0000:
+        switch (nn)
         {
-            case 0x0000:
-                switch (nn)
-                {
-                    case 0x00e0:
-                        foreach (var pixel in _displayBuffer)
-                        {
-                            pixel.Clear();
-                        }
-                        break;
-                    
-                    case 0x00ee:
-                        pc = stack.Pop();
-                        break;
-                }
-                break;
-                
-            case 0x1000:
-                pc = nnn;
-                break;
-            
-            case 0x02000:
-                stack.Push(pc);
-                pc = nnn;
-                break;
-            
-            case 0x3000:
-                pc += (ushort)(v[x] == nn ? 2 : 0);
-                break;
-            
-            case 0x4000:
-                pc += (ushort)(v[x] != nn ? 2 : 0);
-                break;
-            
-            case 0x5000:
-                pc += (ushort)(v[x] == v[y] ? 2 : 0);
-                break;
-                
-            case 0x6000:
-                v[x] = nn;
-                break;
-                
-            case 0x7000:
-                v[x] += nn;
-                break;
-            
-            case 0x8000:
-                switch (n)
-                {
-                    case 0x0000:
-                        v[x] = v[y];
-                        break;
-
-                    case 0x0001:
-                        v[x] = (byte)(v[x] | v[y]);
-                        break;
-                    
-                    case 0x0002:
-                        v[x] = (byte)(v[x] & v[y]);
-                        break;
-                    
-                    case 0x0003:
-                        v[x] = (byte)(v[x] ^ v[y]);
-                        break;
-                    
-                    case 0x0004:
-                        byte vX = v[x];
-                        byte vY = v[y];
-                        byte sum = (byte)(vX + vY);
-                        
-                        v[x] = sum;
-
-                        v[0xf] = (byte)(vX + vY > 255 ? 1 : 0);
-                        break;
-                    
-                    case 0x0005:
-                        sum = (byte)(v[x] - v[y]);
-                        byte carry = (byte)(v[x] >= v[y] ? 1 : 0);
-
-                        v[x] = sum;
-                        v[0xf] = carry;
-                        break;
-                    
-                    case 0x0006:
-                        vY = v[y];
-
-                        v[x] = (byte)(vY >> 1);
-                        v[0xf] = (byte)(vY & 0x1);
-                        break;
-                    
-                    case 0x0007:
-                        sum = (byte)(v[y] - v[x]);
-                        carry = (byte)(v[y] >= v[x] ? 1 : 0);
-                        
-                        v[x] = sum;
-                        v[0xf] = carry;
-                        break;
-                    
-                    case 0x000e:
-                        vY = v[y];
-                        
-                        v[x] = (byte)(vY << 1);
-                        v[0xf] = (byte)((vY & 0x80) == 0x80 ? 1 : 0);
-                        break;
-                }
-                break;
-            
-            case 0x9000:
-                pc += (ushort)(v[x] != v[y] ? 2 : 0);
-                break;
-                
-            case 0xa000:
-                i = nnn;
-                break;
-            
-            case 0xb000:
-                pc = (ushort)(nnn + v[0]);
-                break;
-            
-            case 0xc000:
-                byte rnd = (byte)_random.NextInt64(0, 255);
-
-                v[x] = (byte)(rnd & nn);
-                break;
-                
-            case 0xd000:
-                Draw();
-                break;
-            
-            case 0xe000:
-                switch (nn)
-                {
-                    case 0x009e:
-                        if (_keyboard.IsKeyDown(v[x]))
-                            pc += 2;
-                        break;
-                    
-                    case 0x00a1:
-                        if (!_keyboard.IsKeyDown(v[x]))
-                            pc += 2;
-                        break;
-                }
-                break;
-            
-            case 0xf000:
-                switch (nn)
-                {
-                    case 0x0007:
-                        v[x] = _delayTimer;
-                        break;
-                    
-                    case 0x000a:
-                        if(!_keyboard.WaitingForKey)
-                        {
-                            _keyboard.WaitingForKey = true;
-                            _keyboard.PendingKey = Keyboard.InvalidKey;
-                        }
-
-                        if (_keyboard.PendingKey == Keyboard.InvalidKey)
-                        {
-                            pc -= 2;
-                        }
-                        else
-                        {
-                            v[x] = _keyboard.PendingKey;
-                            _keyboard.PendingKey = Keyboard.InvalidKey;
-                            _keyboard.WaitingForKey = false;
-                        }
-                        break;
-                    
-                    case 0x0015:
-                        _delayTimer = v[x];
-                        break;
-                    
-                    case 0x0018:
-                        _soundTimer = v[x];
-                        break;
-                    
-                    case 0x001e:
-                        byte vX = v[x];
-                        v[0xf] = (byte)(i + v[x] > 0xfff ? 1 : 0);
-                        
-                        i += vX;
-                        break;
-                    
-                    case 0x0029:
-                        i = (ushort)(0x50 + 5 * (v[x] & 0xf));
-                        break;
-                    
-                    case 0x0033:
-                        memory[i + 2] = (byte)(v[x] % 10);
-                        memory[i + 1] = (byte)(v[x] / 10 % 10);
-                        memory[i] =  (byte)(v[x] / 10 / 10);
-                        break;
-
-                    case 0x0055:
-                        for (int j = 0; j <= x; j++)
-                        {
-                            memory[i + j] = v[j];
-                        }
-
-                        i = (ushort)(i + x + 1);
-                        break;
-                    
-                    case 0x0065:
-                        for (int j = 0; j <= x; j++)
-                        {
-                            v[j] = memory[i + j];
-                        }
-
-                        i = (ushort)(i + x + 1);
-                        break;
-                }
-                break;
-            
-            default:
-                Debug.WriteLine("unknown OpCode");
-                break;
-        }
-    }
-
-    private void Draw()
-    {
-        int xPos = v[x] % 64;
-        int yPos = v[y] % 32;
-
-        v[0xf] = 0;
-        
-        for (int j = 0; j < n; j++)
-        {
-            byte row = memory[i + j];
-            
-            int tempX = xPos;
-            
-            for (int k = 7; k >= 0; k--)
+          case 0x00e0:
+            foreach (var pixel in _displayBuffer)
             {
-                if (tempX >= 64 || yPos >= 32)
-                    break;
-                
-                bool curPixel = (row & 1 << k) != 0;
-
-                if (curPixel)
-                {
-                    _displayBuffer[yPos * 64 + tempX].Flip(out bool off);
-                    v[0xf] = off || v[0xf] == 1 ? (byte)1 : (byte)0;
-                }
-                tempX++;
+              pixel.Clear();
             }
-            yPos++;
+            break;
+
+          case 0x00ee:
+            pc = stack.Pop();
+            break;
         }
-    }
+        break;
 
-    private ushort FetchAndDecode()
+      case 0x1000:
+        pc = nnn;
+        break;
+
+      case 0x02000:
+        stack.Push(pc);
+        pc = nnn;
+        break;
+
+      case 0x3000:
+        pc += (ushort)(v[x] == nn ? 2 : 0);
+        break;
+
+      case 0x4000:
+        pc += (ushort)(v[x] != nn ? 2 : 0);
+        break;
+
+      case 0x5000:
+        pc += (ushort)(v[x] == v[y] ? 2 : 0);
+        break;
+
+      case 0x6000:
+        v[x] = nn;
+        break;
+
+      case 0x7000:
+        v[x] += nn;
+        break;
+
+      case 0x8000:
+        switch (n)
+        {
+          case 0x0000:
+            v[x] = v[y];
+            break;
+
+          case 0x0001:
+            v[x] = (byte)(v[x] | v[y]);
+            break;
+
+          case 0x0002:
+            v[x] = (byte)(v[x] & v[y]);
+            break;
+
+          case 0x0003:
+            v[x] = (byte)(v[x] ^ v[y]);
+            break;
+
+          case 0x0004:
+            byte vX = v[x];
+            byte vY = v[y];
+            byte sum = (byte)(vX + vY);
+
+            v[x] = sum;
+
+            v[0xf] = (byte)(vX + vY > 255 ? 1 : 0);
+            break;
+
+          case 0x0005:
+            sum = (byte)(v[x] - v[y]);
+            byte carry = (byte)(v[x] >= v[y] ? 1 : 0);
+
+            v[x] = sum;
+            v[0xf] = carry;
+            break;
+
+          case 0x0006:
+            vY = v[y];
+
+            v[x] = (byte)(vY >> 1);
+            v[0xf] = (byte)(vY & 0x1);
+            break;
+
+          case 0x0007:
+            sum = (byte)(v[y] - v[x]);
+            carry = (byte)(v[y] >= v[x] ? 1 : 0);
+
+            v[x] = sum;
+            v[0xf] = carry;
+            break;
+
+          case 0x000e:
+            vY = v[y];
+
+            v[x] = (byte)(vY << 1);
+            v[0xf] = (byte)((vY & 0x80) == 0x80 ? 1 : 0);
+            break;
+        }
+        break;
+
+      case 0x9000:
+        pc += (ushort)(v[x] != v[y] ? 2 : 0);
+        break;
+
+      case 0xa000:
+        i = nnn;
+        break;
+
+      case 0xb000:
+        pc = (ushort)(nnn + v[0]);
+        break;
+
+      case 0xc000:
+        byte rnd = (byte)_random.NextInt64(0, 255);
+
+        v[x] = (byte)(rnd & nn);
+        break;
+
+      case 0xd000:
+        Draw();
+        break;
+
+      case 0xe000:
+        switch (nn)
+        {
+          case 0x009e:
+            if (_keyboard.IsKeyDown(v[x]))
+              pc += 2;
+            break;
+
+          case 0x00a1:
+            if (!_keyboard.IsKeyDown(v[x]))
+              pc += 2;
+            break;
+        }
+        break;
+
+      case 0xf000:
+        switch (nn)
+        {
+          case 0x0007:
+            v[x] = _delayTimer;
+            break;
+
+          case 0x000a:
+            if (!_keyboard.WaitingForKey)
+            {
+              _keyboard.WaitingForKey = true;
+              _keyboard.PendingKey = Keyboard.InvalidKey;
+            }
+
+            if (_keyboard.PendingKey == Keyboard.InvalidKey)
+            {
+              pc -= 2;
+            }
+            else
+            {
+              v[x] = _keyboard.PendingKey;
+              _keyboard.PendingKey = Keyboard.InvalidKey;
+              _keyboard.WaitingForKey = false;
+            }
+            break;
+
+          case 0x0015:
+            _delayTimer = v[x];
+            break;
+
+          case 0x0018:
+            _soundTimer = v[x];
+            break;
+
+          case 0x001e:
+            byte vX = v[x];
+            v[0xf] = (byte)(i + v[x] > 0xfff ? 1 : 0);
+
+            i += vX;
+            break;
+
+          case 0x0029:
+            i = (ushort)(0x50 + 5 * (v[x] & 0xf));
+            break;
+
+          case 0x0033:
+            memory[i + 2] = (byte)(v[x] % 10);
+            memory[i + 1] = (byte)(v[x] / 10 % 10);
+            memory[i] = (byte)(v[x] / 10 / 10);
+            break;
+
+          case 0x0055:
+            for (int j = 0; j <= x; j++)
+            {
+              memory[i + j] = v[j];
+            }
+
+            i = (ushort)(i + x + 1);
+            break;
+
+          case 0x0065:
+            for (int j = 0; j <= x; j++)
+            {
+              v[j] = memory[i + j];
+            }
+
+            i = (ushort)(i + x + 1);
+            break;
+        }
+        break;
+
+      default:
+        Debug.WriteLine("unknown OpCode");
+        break;
+    }
+  }
+
+  private void Draw()
+  {
+    int xPos = v[x] % 64;
+    int yPos = v[y] % 32;
+
+    v[0xf] = 0;
+
+    for (int j = 0; j < n; j++)
     {
-        ushort opCode = (ushort)((memory[pc] << 8) | memory[pc + 1]);
+      byte row = memory[i + j];
 
-        x = (byte)((opCode & 0x0f00) >> 8);
-        y = (byte)((opCode & 0x00f0) >> 4);
-        n = (byte)(opCode & 0x000f);
-        nn = (byte)(opCode & 0x00ff);
-        nnn = (ushort)(opCode & 0xfff);
+      int tempX = xPos;
 
-        pc += 2;
-        return opCode;
+      for (int k = 7; k >= 0; k--)
+      {
+        if (tempX >= 64 || yPos >= 32)
+          break;
+
+        bool curPixel = (row & 1 << k) != 0;
+
+        if (curPixel)
+        {
+          _displayBuffer[yPos * 64 + tempX].Flip(out bool off);
+          v[0xf] = off || v[0xf] == 1 ? (byte)1 : (byte)0;
+        }
+        tempX++;
+      }
+      yPos++;
     }
+  }
 
-    private void Tick(object? sender, ElapsedEventArgs e)
-    {
-        if (_soundTimer > 0)
-            _soundTimer--;
-        
-        if (_delayTimer > 0)
-            _delayTimer--;
-    }
+  private ushort FetchAndDecode()
+  {
+    ushort opCode = (ushort)((memory[pc] << 8) | memory[pc + 1]);
 
-    public void Dispose() => _timer.Dispose();
+    x = (byte)((opCode & 0x0f00) >> 8);
+    y = (byte)((opCode & 0x00f0) >> 4);
+    n = (byte)(opCode & 0x000f);
+    nn = (byte)(opCode & 0x00ff);
+    nnn = (ushort)(opCode & 0xfff);
+
+    pc += 2;
+    return opCode;
+  }
+
+  private void Tick(object? sender, ElapsedEventArgs e)
+  {
+    if (_soundTimer > 0)
+      _soundTimer--;
+
+    if (_delayTimer > 0)
+      _delayTimer--;
+  }
+
+  public void Dispose()
+  {
+    _timer.Dispose();
+    _executing = false;
+  }
 }
