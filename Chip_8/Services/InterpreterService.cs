@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Avalonia.Input;
-using Chip_8.config;
+using Chip_8.Data;
 using Chip_8.CustomControls;
 using Chip_8.Interfaces;
 using Chip_8.Interpreters;
@@ -103,7 +103,7 @@ public class InterpreterService(Keyboard keyboardService)
         switch (options.Version)
         {
             case Chip8Versions.Legacy:
-                _currentInstance = new LegacyInterpreter(displayBuffer, options.Path, keyMap, keyboardService);
+                _currentInstance = new LegacyInterpreter(displayBuffer, options.Path, keyMap, keyboardService, options.Frequency);
                 return _currentInstance;
             
             case Chip8Versions.SuperChip:

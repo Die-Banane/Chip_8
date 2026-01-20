@@ -3,8 +3,6 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="using:Chip_8.ViewModels"
-        xmlns:views="using:Chip_8.Views"
-        xmlns:cc="using:Chip_8.CustomControls"
         mc:Ignorable="d" d:DesignWidth="750" d:DesignHeight="550"
         Height="600" Width="800"
         MinHeight="550" MinWidth="750"

@@ -11,9 +11,13 @@ partial class MainWindowViewModel : ViewModelBase
 
     public MainWindowViewModel(MainViewModel currentView, Keyboard keyboard, InterpreterService interpreterService)
     {
+        //set the current View to the main view
         CurrentView = currentView;
+        
+        //initialize Keyboard to route keypresses to the InterpreterView
         Keyboard = keyboard;
         
+        //show the interpreter view and create it with the InterpreterOptions object that is being sent in the messge
         WeakReferenceMessenger.Default.Register<InitializeInterpreterMessage>(this, (_, m) =>
         {
             CurrentView = new InterpreterViewModel(m.Value, interpreterService);

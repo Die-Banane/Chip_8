@@ -6,12 +6,12 @@ using CommunityToolkit.Mvvm.Messaging.Messages;
 
 namespace Chip_8.ViewModels;
 
-partial class MainViewModel(DialogFactory factory) : ViewModelBase
+partial class MainViewModel(DialogFactory dialogFactory) : ViewModelBase
 {
     [RelayCommand]
     private async Task SetUpInterpreter(string? path = null)
     {
-        var response = await factory.CreateConfirmDialog<SettingsViewModel>(null, factory, path!);
+        var response = await dialogFactory.CreateConfirmDialog<SettingsViewModel>(null, dialogFactory, path!);
         
         if (response is not null)
             WeakReferenceMessenger.Default.Send(new InitializeInterpreterMessage((InterpreterOptions)response));

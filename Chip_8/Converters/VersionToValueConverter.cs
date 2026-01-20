@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using Avalonia.Data.Converters;
-using Chip_8.config;
+using Chip_8.Data;
 
 namespace Chip_8.Converters;
 

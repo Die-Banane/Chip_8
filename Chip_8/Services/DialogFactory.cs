@@ -27,7 +27,10 @@ public class DialogFactory(IServiceProvider serviceProvider)
                 owner = desktop.MainWindow;
         }
         
-        return await dialog.ShowDialog<object?>(owner!);
+        //TODO: make Result type for the response to avoid returning null
+        if (owner == null) return null;
+        
+        return await dialog.ShowDialog<object?>(owner);
     }
     
     public async Task<IReadOnlyList<IStorageFile>> CreateFilePickerDialog(IStorageProvider provider)

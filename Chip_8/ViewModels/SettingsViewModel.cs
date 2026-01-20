@@ -6,7 +6,7 @@ using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Platform.Storage;
 using Chip_8.Interfaces;
-using Chip_8.config;
+using Chip_8.Data;
 using Chip_8.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -32,10 +32,9 @@ partial class SettingsViewModel : ViewModelBase, IConfirmDialogContent
     ];
     
     [ObservableProperty] private Chip8Versions _selectedVersion = Chip8Versions.Legacy;
-    
     [ObservableProperty] private KeyPadLayouts _selectedLayout = KeyPadLayouts.Qwerty;
-
     [ObservableProperty] private string _path = string.Empty;
+    [ObservableProperty] private int _cpuFrequency = 700;
     
     private readonly DialogFactory _dialogFactory;
 
@@ -57,13 +56,13 @@ partial class SettingsViewModel : ViewModelBase, IConfirmDialogContent
         var file = await _dialogFactory.CreateFilePickerDialog(provider);
 
         if (file.Count > 0) 
-            Path = file.First().TryGetLocalPath()!;
+            Path = file.First().TryGetLocalPath()!.Replace('%', ' ');
     }
 
     public object? OnConfirm()
     {
         if (string.IsNullOrEmpty(Path)) return null;
-        return new InterpreterOptions(SelectedVersion, SelectedLayout, Path);
+        return new InterpreterOptions(SelectedVersion, SelectedLayout, Path, CpuFrequency);
     }
 
     public object? OnCancel() => null;
@@ -73,4 +72,4 @@ partial class SettingsViewModel : ViewModelBase, IConfirmDialogContent
     public string GetCancelText() => "Cancel";
 }
 
-public record InterpreterOptions(Chip8Versions Version, KeyPadLayouts Layout, string Path);
+public record InterpreterOptions(Chip8Versions Version, KeyPadLayouts Layout, string Path, int Frequency);

@@ -1,4 +1,4 @@
-﻿namespace Chip_8.config;
+﻿namespace Chip_8.Data;
 
 public enum Chip8Versions
 {
