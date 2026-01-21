@@ -3,12 +3,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
-using System.Timers;
 using Avalonia.Input;
 using Chip_8.CustomControls;
 using Chip_8.Interfaces;
 using Chip_8.Services;
-using Timer = System.Timers.Timer;
 
 namespace Chip_8.Interpreters;
 
@@ -18,10 +16,9 @@ public class LegacyInterpreter : IInterpreter
     private readonly string _programPath;
     private readonly Random _random;
     private readonly Keyboard _keyboard;
-    private readonly Timer _timer;
+    private readonly int _frequency;
 
     private bool _executing;
-    private int _frequency;
     
     private ushort _pc, _index;
     private byte[] _v = null!;
@@ -66,10 +63,7 @@ public class LegacyInterpreter : IInterpreter
           _programPath = programPath;
           _displayBuffer = displayBuffer;
           _random = new Random();
-          _timer = new(TimeSpan.FromMilliseconds(16.6));
           _frequency = frequency;
-
-          _timer.Elapsed += Tick;
 
           InitializeCpu();
     }
@@ -79,7 +73,7 @@ public class LegacyInterpreter : IInterpreter
         _pc = 0x200;
         _v = new byte[16];
 
-        _memory = new byte[4069];
+        _memory = new byte[4096];
         _stack = new Stack<ushort>();
 
         _font.CopyTo(_memory, 0x50);
@@ -87,8 +81,7 @@ public class LegacyInterpreter : IInterpreter
         program = File.ReadAllBytes(_programPath);
 
         program.CopyTo(_memory, 0x200);
-
-        _timer.Start();
+        
         _executing = true;
     }
 
@@ -97,12 +90,24 @@ public class LegacyInterpreter : IInterpreter
         var sw = Stopwatch.StartNew();
 
         long ticksPerInstruction = Stopwatch.Frequency / _frequency;
+        long ticksPerTimerTick = Stopwatch.Frequency / 60;
+        
         long nextTick = sw.ElapsedTicks;
+        long nextTimerTick = nextTick;
 
         while (_executing)
         {
             long now = sw.ElapsedTicks;
 
+            if (now >= nextTimerTick)
+            {
+                Tick();
+                nextTimerTick += ticksPerTimerTick;
+                
+                if (now - nextTimerTick > ticksPerTimerTick)
+                    nextTimerTick = now;
+            }
+            
             if (now >= nextTick)
             {
                 Step();
@@ -390,7 +395,7 @@ public class LegacyInterpreter : IInterpreter
         return opCode;
     }
 
-    private void Tick(object? sender, ElapsedEventArgs e)
+    private void Tick()
     {
         if (_soundTimer > 0)
           _soundTimer--;
@@ -401,7 +406,6 @@ public class LegacyInterpreter : IInterpreter
 
     public void Dispose()
     {
-        _timer.Dispose(); 
         _executing = false;
     }
 }

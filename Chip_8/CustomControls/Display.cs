@@ -5,6 +5,8 @@ using Avalonia.Media;
 
 namespace Chip_8.CustomControls;
 
+
+//TODO: rewrite the Render logic because it causes way to many memory allocations
 public class Display : Control
 {
     public static readonly StyledProperty<Pixel[]> BufferProperty = 
