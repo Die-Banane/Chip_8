@@ -8,18 +8,25 @@ using Avalonia.Platform.Storage;
 using Chip_8.Interfaces;
 using Chip_8.ViewModels;
 using Chip_8.Views;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Chip_8.Services;
 
-public class DialogFactory(IServiceProvider serviceProvider)
+public class DialogFactory(ConfirmDialogWindow confirmDialogWindow)
 {
     public async Task<object?> CreateConfirmDialog<TDialogContent>(Window? owner = null, params object[]? args)
         where TDialogContent : IConfirmDialogContent
     {
-        var dialog = serviceProvider.GetRequiredService<ConfirmDialogWindow>();
-        
-        dialog.DataContext = new ConfirmDialogViewModel((TDialogContent)Activator.CreateInstance(typeof(TDialogContent), args)!);
+        var dialog = confirmDialogWindow;
+
+        try
+        {
+            dialog.DataContext = new ConfirmDialogViewModel((TDialogContent)Activator.CreateInstance(typeof(TDialogContent), args)!);
+        }
+        catch (Exception)
+        {
+            //TODO: make better error handling
+            throw new ArgumentException("Wrong args");
+        }
 
         if (owner is null &&
             Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)

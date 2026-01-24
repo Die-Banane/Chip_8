@@ -288,9 +288,7 @@ public class LegacyInterpreter : IInterpreter
                         }
 
                         if (_keyboard.PendingKey == Keyboard.InvalidKey)
-                        {
                             _pc -= 2;
-                        }
                         else
                         {
                             _v[x] = _keyboard.PendingKey;

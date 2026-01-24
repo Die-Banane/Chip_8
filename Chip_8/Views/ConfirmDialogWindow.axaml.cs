@@ -14,16 +14,12 @@ public partial class ConfirmDialogWindow : Window
     private void OnConfirm(object? sender, RoutedEventArgs args)
     {
         if (DataContext is ConfirmDialogViewModel vm)
-        {
             Close(vm.DialogContent.OnConfirm());
-        }
     }
     
     private void OnCancel(object? sender, RoutedEventArgs args)
     {
         if (DataContext is ConfirmDialogViewModel vm)
-        {
             Close(vm.DialogContent.OnCancel());
-        }
     }
 }

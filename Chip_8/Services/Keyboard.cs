@@ -5,7 +5,7 @@ namespace Chip_8.Services;
 
 public class Keyboard
 {
-    public static readonly byte InvalidKey = 0xff;
+    public const byte InvalidKey = 0xff;
 
     private readonly HashSet<byte> _activeKeys = new();
 
