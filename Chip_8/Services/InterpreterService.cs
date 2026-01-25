@@ -73,7 +73,7 @@ public class InterpreterService(Keyboard keyboardService)
 
     private IInterpreter? _currentInstance;
 
-    public IInterpreter CreateInterpreter(InterpreterOptions options, Pixel[] displayBuffer)
+    public IInterpreter CreateInterpreter(InterpreterOptions options, DisplayBuffer displayBuffer)
     {
         _currentInstance?.Dispose();
         

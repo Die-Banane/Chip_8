@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using Avalonia.Input;
-using Chip_8.CustomControls;
+using Chip_8.Data;
 using Chip_8.Interfaces;
 using Chip_8.Services;
 
@@ -12,7 +12,7 @@ namespace Chip_8.Interpreters;
 
 public class LegacyInterpreter : IInterpreter
 {
-    private readonly Pixel[] _displayBuffer;
+    private readonly DisplayBuffer _displayBuffer;
     private readonly string _programPath;
     private readonly Random _random;
     private readonly Keyboard _keyboard;
@@ -52,7 +52,7 @@ public class LegacyInterpreter : IInterpreter
 
     public Dictionary<Key, byte>? KeyMap { get; }
 
-    public LegacyInterpreter(Pixel[] displayBuffer,
+    public LegacyInterpreter(DisplayBuffer displayBuffer,
         string programPath,
         Dictionary<Key, byte>? keyMap,
         Keyboard keyboard,
@@ -123,7 +123,6 @@ public class LegacyInterpreter : IInterpreter
         }
     }
 
-
     private void Step()
     {
         ushort opCode = FetchAndDecode();
@@ -134,10 +133,7 @@ public class LegacyInterpreter : IInterpreter
                 switch (nn)
                 { 
                     case 0x00e0:
-                        foreach (var pixel in _displayBuffer)
-                        {
-                            pixel.Clear();
-                        }
+                        _displayBuffer.Clear();
                         break;
 
                     case 0x00ee:
@@ -370,8 +366,9 @@ public class LegacyInterpreter : IInterpreter
 
                 if (curPixel)
                 {
-                    _displayBuffer[yPos * 64 + tempX].Flip(out bool off);
-                    _v[0xf] = off || _v[0xf] == 1 ? (byte)1 : (byte)0;
+                    //_displayBuffer[yPos * 64 + tempX].Flip(out bool off);
+                    //_v[0xf] = off || _v[0xf] == 1 ? (byte)1 : (byte)0;
+                    _v[0xf] = (byte)(_displayBuffer.XorPixel(tempX, yPos) || _v[0xf] == 1 ? 1 : 2);
                 }
                 tempX++;
             }

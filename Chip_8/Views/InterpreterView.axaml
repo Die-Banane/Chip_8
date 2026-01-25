@@ -7,5 +7,5 @@
              x:DataType="vm:InterpreterViewModel"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Chip_8.Views.InterpreterView">    
-    <cc:Display Buffer="{Binding PixelBuffer}" />
+    <cc:Display DisplayBuffer="{Binding DisplayBuffer}" />
 </UserControl>
