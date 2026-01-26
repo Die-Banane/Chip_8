@@ -88,17 +88,18 @@ public class LegacyInterpreter : IInterpreter
     public void Run()
     {
         var sw = Stopwatch.StartNew();
-
+        
         long ticksPerInstruction = Stopwatch.Frequency / _frequency;
         long ticksPerTimerTick = Stopwatch.Frequency / 60;
         
-        long nextTick = sw.ElapsedTicks;
-        long nextTimerTick = nextTick;
+        long nextClockTick = sw.ElapsedTicks;
+        long nextTimerTick = nextClockTick;
 
         while (_executing)
         {
             long now = sw.ElapsedTicks;
 
+            //timings for the sound timer and the normal timer
             if (now >= nextTimerTick)
             {
                 Tick();
@@ -108,18 +109,17 @@ public class LegacyInterpreter : IInterpreter
                     nextTimerTick = now;
             }
             
-            if (now >= nextTick)
+            //timings for the CPU step
+            if (now >= nextClockTick) //step the CPU when enough time has passed
             {
                 Step();
-                nextTick += ticksPerInstruction;
+                nextClockTick += ticksPerInstruction; //calculate when the next tick should happen
 
-                if (now - nextTick > ticksPerInstruction)
-                    nextTick = now;
+                if (now - nextClockTick > ticksPerInstruction) //in case one step was missed recalculate when the next tick should happen
+                    nextClockTick = now;
             }
-            else
-            {
+            else //halt the cpu if we need to
                 Thread.SpinWait(20);
-            }
         }
     }
 
@@ -129,7 +129,7 @@ public class LegacyInterpreter : IInterpreter
 
         switch (opCode & 0xf000)
         {
-            case 0x0000: 
+            case 0x0000:
                 switch (nn)
                 { 
                     case 0x00e0:
@@ -171,7 +171,7 @@ public class LegacyInterpreter : IInterpreter
                     _v[x] += nn;
                     break;
 
-                case 0x8000: 
+                case 0x8000:
                     switch (n)
                     {
                         case 0x0000:
@@ -180,14 +180,17 @@ public class LegacyInterpreter : IInterpreter
 
                         case 0x0001:
                             _v[x] = (byte)(_v[x] | _v[y]);
+                            _v[0xf] = 0;
                             break;
 
                         case 0x0002:
                             _v[x] = (byte)(_v[x] & _v[y]);
+                            _v[0xf] = 0;
                             break;
 
                         case 0x0003:
                             _v[x] = (byte)(_v[x] ^ _v[y]);
+                            _v[0xf] = 0;
                             break;
 
                         case 0x0004:
@@ -365,11 +368,8 @@ public class LegacyInterpreter : IInterpreter
                 bool curPixel = (row & 1 << k) != 0;
 
                 if (curPixel)
-                {
-                    //_displayBuffer[yPos * 64 + tempX].Flip(out bool off);
-                    //_v[0xf] = off || _v[0xf] == 1 ? (byte)1 : (byte)0;
-                    _v[0xf] = (byte)(_displayBuffer.XorPixel(tempX, yPos) || _v[0xf] == 1 ? 1 : 2);
-                }
+                    _v[0xf] = (byte)(_displayBuffer.XorPixel(tempX, yPos) || _v[0xf] == 1 ? 1 : 0);
+                
                 tempX++;
             }
             yPos++;

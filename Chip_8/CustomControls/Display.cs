@@ -31,6 +31,8 @@ public class Display : Control
 
     protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
     {
+        RenderOptions.SetBitmapInterpolationMode(this, BitmapInterpolationMode.None);
+        
         timer.Tick += (_, _) =>
         {
             if (DisplayBuffer.IsDirty)
