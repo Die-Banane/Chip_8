@@ -56,32 +56,37 @@ public class Display : Control
 
     public override void Render(DrawingContext context)
     {
-        using (var framebuffer = _frame.Lock())
+        double pixelSize = Math.Min(Bounds.Width / DisplayBuffer.Width, Bounds.Height / DisplayBuffer.Height);
+        
+        double offsetX = (Bounds.Width - DisplayBuffer.Width * pixelSize) / 2;
+        double offsetY = (Bounds.Height - DisplayBuffer.Height * pixelSize) / 2;
+
+        double frameWidth = pixelSize * DisplayBuffer.Width;
+        double frameHeight = pixelSize * DisplayBuffer.Height;
+        
+        using var framebuffer = _frame.Lock();
+        
+        unsafe
         {
-            unsafe
+            byte* address = (byte*)framebuffer.Address;
+
+            for (int y = 0; y < DisplayBuffer.Height; y++)
             {
-                byte* address = (byte*)framebuffer.Address;
-
-                for (int y = 0; y < DisplayBuffer.Height; y++)
+                for (int x = 0; x < DisplayBuffer.Width; x++)
                 {
-                    for (int x = 0; x < DisplayBuffer.Width; x++)
-                    {
-                        byte* pixel = address + y * framebuffer.RowBytes + x * 4;
+                    byte* pixel = address + y * framebuffer.RowBytes + x * 4;
 
-                        byte color = (byte)(DisplayBuffer.Buffer[y * DisplayBuffer.Width + x] ? 255 : 0);
-
-                        pixel[0] = color;
-                        pixel[1] = color;
-                        pixel[2] = color;
-                        pixel[3] = 255;
-                    }
+                    byte color = (byte)(DisplayBuffer.Buffer[y * DisplayBuffer.Width + x] ? 255 : 0);
+                        
+                    pixel[0] = color;
+                    pixel[1] = color;
+                    pixel[2] = color;
+                    pixel[3] = 255;
                 }
             }
         }
 
-        context.DrawImage(_frame,
-            new Rect(0, 0, _frame.PixelSize.Width, _frame.PixelSize.Height),
-            new Rect(0, 0, Bounds.Width, Bounds.Height));
+        context.DrawImage(_frame, new Rect(offsetX, offsetY, frameWidth, frameHeight));
 
         base.Render(context);
     }
