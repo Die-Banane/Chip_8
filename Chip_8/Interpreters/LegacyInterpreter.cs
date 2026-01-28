@@ -99,7 +99,7 @@ public class LegacyInterpreter : IInterpreter
         {
             long now = sw.ElapsedTicks;
 
-            //timings for the sound timer and the normal timer
+            //timings for the sound timer and the delay timer
             if (now >= nextTimerTick)
             {
                 Tick();
