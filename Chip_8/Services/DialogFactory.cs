@@ -11,12 +11,12 @@ using Chip_8.Views;
 
 namespace Chip_8.Services;
 
-public class DialogFactory(ConfirmDialogWindow confirmDialogWindow)
+public class DialogFactory()
 {
     public async Task<object?> CreateConfirmDialog<TDialogContent>(Window? owner = null, params object[]? args)
         where TDialogContent : IConfirmDialogContent
     {
-        var dialog = confirmDialogWindow;
+        var dialog = new ConfirmDialogWindow();
 
         try
         {

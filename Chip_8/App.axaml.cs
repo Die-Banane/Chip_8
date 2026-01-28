@@ -23,7 +23,6 @@ public partial class App : Application
         collection.AddSingleton<DialogFactory>();
         collection.AddSingleton<InterpreterService>();
         collection.AddSingleton<Keyboard>();
-        collection.AddTransient<ConfirmDialogWindow>();
         collection.AddTransient<MainViewModel>();
         
         var serviceProvider = collection.BuildServiceProvider();
