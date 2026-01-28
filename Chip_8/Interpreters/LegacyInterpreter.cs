@@ -18,6 +18,7 @@ public class LegacyInterpreter : IInterpreter
     private readonly Keyboard _keyboard;
     private readonly int _frequency;
 
+    private bool _allowDraw;
     private bool _executing;
     
     private ushort _pc, _index;
@@ -81,7 +82,8 @@ public class LegacyInterpreter : IInterpreter
         program = File.ReadAllBytes(_programPath);
 
         program.CopyTo(_memory, 0x200);
-        
+
+        _allowDraw = true;
         _executing = true;
     }
 
@@ -146,7 +148,7 @@ public class LegacyInterpreter : IInterpreter
                     _pc = nnn;
                     break;
 
-                case 0x02000:
+                case 0x2000:
                     _stack.Push(_pc);
                     _pc = nnn;
                     break;
@@ -248,14 +250,19 @@ public class LegacyInterpreter : IInterpreter
                   break;
 
             case 0xc000:
-                byte rnd = (byte)_random.NextInt64(0, 255);
+                byte rnd = (byte)_random.NextInt64(0, 256);
 
                 _v[x] = (byte)(rnd & nn);
                 break;
 
             case 0xd000:
-                  Draw();
-                  break;
+                if (!_allowDraw)
+                {
+                    _pc -= 2;
+                    break;
+                }
+                Draw();
+                break;
 
             case 0xe000: 
                 switch (nn)
@@ -349,6 +356,8 @@ public class LegacyInterpreter : IInterpreter
 
     private void Draw()
     {
+        _allowDraw = false;
+        
         int xPos = _v[x] % 64;
         int yPos = _v[y] % 32;
 
@@ -397,10 +406,9 @@ public class LegacyInterpreter : IInterpreter
 
         if (_delayTimer > 0)
           _delayTimer--;
+        
+        _allowDraw = true;
     }
-
-    public void Dispose()
-    {
-        _executing = false;
-    }
+    
+    public void Dispose() => _executing = false;
 }

@@ -7,7 +7,6 @@ public class DisplayBuffer
     public bool IsDirty { get; set; }
     public bool[] Buffer { get; } = new bool[Width * Height];
 
-
     public bool XorPixel(int xPos, int yPos)
     {
         int index = yPos * Width + xPos;
