@@ -100,8 +100,7 @@ public class LegacyInterpreter : IInterpreter
         while (_executing)
         {
             long now = sw.ElapsedTicks;
-
-            //timings for the sound timer and the delay timer
+            
             if (now >= nextTimerTick)
             {
                 Tick();
@@ -117,12 +116,14 @@ public class LegacyInterpreter : IInterpreter
                 Step();
                 nextClockTick += ticksPerInstruction; //calculate when the next tick should happen
 
-                if (now - nextClockTick > ticksPerInstruction) //in case one step was missed recalculate when the next tick should happen
+                if (now - nextClockTick > ticksPerInstruction) //correct possible drift
                     nextClockTick = now;
             }
             else //halt the cpu if we need to
                 Thread.SpinWait(20);
         }
+        
+        sw.Stop();
     }
 
     private void Step()

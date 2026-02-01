@@ -31,6 +31,7 @@ partial class SettingsViewModel : ViewModelBase, IConfirmDialogContent
         new("Azerty", KeyPadLayouts.Azerty)
     ];
     
+    //default settings
     [ObservableProperty] private Chip8Versions _selectedVersion = Chip8Versions.Legacy;
     [ObservableProperty] private KeyPadLayouts _selectedLayout = KeyPadLayouts.Qwerty;
     [ObservableProperty] private string _path = string.Empty;
@@ -55,8 +56,8 @@ partial class SettingsViewModel : ViewModelBase, IConfirmDialogContent
         
         var file = await _dialogFactory.CreateFilePickerDialog(provider);
 
-        if (file.Count > 0) 
-            Path = file.First().TryGetLocalPath()!.Replace('%', ' ');
+        if (file.Count > 0)
+            Path = file.First().TryGetLocalPath()!;
     }
 
     public object? OnConfirm()

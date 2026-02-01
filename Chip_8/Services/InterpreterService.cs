@@ -71,11 +71,11 @@ public class InterpreterService(Keyboard keyboardService)
         { Key.V, 0xf }
     };
 
-    private IInterpreter? _currentInstance;
+    public IInterpreter? CurrentInstance { get; private set; }
 
     public IInterpreter CreateInterpreter(InterpreterOptions options, DisplayBuffer displayBuffer)
     {
-        _currentInstance?.Dispose();
+        CurrentInstance?.Dispose();
         
         Dictionary<Key, byte> keyMap;
 
@@ -103,16 +103,16 @@ public class InterpreterService(Keyboard keyboardService)
         switch (options.Version)
         {
             case Chip8Versions.Legacy:
-                _currentInstance = new LegacyInterpreter(displayBuffer, options.Path, keyMap, keyboardService, options.Frequency);
-                return _currentInstance;
+                CurrentInstance = new LegacyInterpreter(displayBuffer, options.Path, keyMap, keyboardService, options.Frequency);
+                return CurrentInstance;
             
             case Chip8Versions.SuperChip:
-                _currentInstance = new SuperInterpreter();
-                return _currentInstance;
+                CurrentInstance = new SuperInterpreter();
+                return CurrentInstance;
             
             case Chip8Versions.XoChip:
-                _currentInstance = new XoInterpreter();
-                return _currentInstance;
+                CurrentInstance = new XoInterpreter();
+                return CurrentInstance;
             
             default:
                 throw new InvalidOperationException();

@@ -1,38 +1,30 @@
 ﻿<Styles xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <Design.PreviewWith>
-        <Border Padding="20">
+        <StackPanel Spacing="20">
             <Button>Test</Button>
-        </Border>
+            <Button Classes="IconButton">&#xe65d;</Button>
+        </StackPanel>
     </Design.PreviewWith>
 
     <Style Selector="Button">
-        <Setter Property="Background" Value="{DynamicResource ForegroundColor}" />
+        <Setter Property="Background" Value="{DynamicResource TextColor}" />
         <Setter Property="Foreground" Value="#343434" />
         
-        <Style Selector="^.Icon /template/ ContentPresenter">
+        <Style Selector="^.IconButton">
             <Setter Property="Background" Value="#343434" />
-            <Setter Property="Foreground" Value="{DynamicResource ForegroundColor}" />
-            <Setter Property="BorderBrush" Value="{DynamicResource ForegroundColor}" />
-            <Setter Property="FontFamily" Value="{DynamicResource Phosphor}" />
+            <Setter Property="Foreground" Value="{DynamicResource TextColor}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource TextColor}" />
+            <Setter Property="FontFamily" Value="{DynamicResource Icons}" />
         </Style>
         
-        <Style Selector="^.Cancel /template/ ContentPresenter">
-            <Setter Property="Background" Value="#343434" />
-            <Setter Property="Foreground" Value="{DynamicResource ForegroundColor}" />
-        </Style>
-        
-        <Style Selector="^:pointerover /template/ ContentPresenter">
-            <Setter Property="Background" Value="#A1A3A5" />
-            <Setter Property="Foreground" Value="#343434" />
-        </Style>
-        
-        <Style Selector="^:pressed /template/ ContentPresenter">
-            <Setter Property="Background" Value="White"/>
+        <Style Selector="^:pointerover">
+            <Setter Property="Background" Value="{DynamicResource BackgroundColor}" />
+            <Setter Property="Foreground" Value="{DynamicResource TextColor}" />
         </Style>
         
         <Style Selector="^:pressed">
-            <Setter Property="RenderTransform" Value="scale(1)"/>
+            <Setter Property="Background" Value="White"/>
         </Style>
     </Style>
 </Styles>

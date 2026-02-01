@@ -6,7 +6,7 @@
              xmlns:c="using:Chip_8.Converters"
              x:DataType="vm:SettingsViewModel"
              Background="{DynamicResource BackgroundColor}"
-             Foreground="{DynamicResource ForegroundColor}"
+             Foreground="{DynamicResource TextColor}"
              mc:Ignorable="d" d:DesignWidth="550" d:DesignHeight="450"
              x:Class="Chip_8.Views.SettingsView">
     
@@ -70,7 +70,7 @@
                 
             <Border
                 Background="#343434"
-                BorderBrush="{DynamicResource ForegroundColor}"
+                BorderBrush="{DynamicResource TextColor}"
                 BorderThickness="1"
                 CornerRadius="3"
                 Padding="5, 0, 0, 0">
@@ -81,8 +81,8 @@
             
             <Button Grid.Column="2"
                     VerticalAlignment="Stretch"
-                    Classes="Icon"
-                    Content="&#xE256;"
+                    Classes="IconButton"
+                    Content="&#xf0770;"
                     Command="{Binding OpenFilePickerCommand}" />
         </Grid>
     </Grid>

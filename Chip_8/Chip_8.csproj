@@ -32,6 +32,14 @@
 
     <ItemGroup>
       <None Remove="Assets\Phosphor-Thin.ttf" />
-      <AvaloniaResource Include="Assets\Phosphor-Thin.ttf" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Assets\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="Assets\JetBrainsMonoNerdFont-Bold.ttf" />
+      <AvaloniaResource Include="Assets\JetBrainsMonoNerdFont-Bold.ttf" />
     </ItemGroup>
 </Project>

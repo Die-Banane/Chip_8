@@ -9,7 +9,7 @@
         x:Class="Chip_8.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         Background="{DynamicResource BackgroundColor}"
-        Foreground="{DynamicResource ForegroundColor}"
+        Foreground="{DynamicResource TextColor}"
         Title="Chip 8">
         
         <ContentControl Content="{Binding CurrentView}" />

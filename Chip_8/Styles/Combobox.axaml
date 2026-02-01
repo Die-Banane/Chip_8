@@ -55,7 +55,7 @@
     <Setter Property="Padding" Value="{DynamicResource ComboBoxPadding}" />
     <Setter Property="FocusAdorner" Value="{x:Null}" />
     <Setter Property="MaxDropDownHeight" Value="504" />
-    <Setter Property="Foreground" Value="{DynamicResource ForegroundColor}" />
+    <Setter Property="Foreground" Value="{DynamicResource TextColor}" />
     <Setter Property="Background" Value="#383838" />
     <Setter Property="BorderBrush" Value="{DynamicResource ComboBoxBorderBrush}" />
     <Setter Property="BorderThickness" Value="{DynamicResource ComboBoxBorderThemeThickness}" />

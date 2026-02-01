@@ -4,7 +4,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="using:Chip_8.ViewModels"
         Background="{DynamicResource BackgroundColor}"
-        Foreground="{DynamicResource ForegroundColor}"
+        Foreground="{DynamicResource TextColor}"
         mc:Ignorable="d" d:DesignWidth="350" d:DesignHeight="200"
         Width="550" Height="150"
         MinWidth="550" MinHeight="150"

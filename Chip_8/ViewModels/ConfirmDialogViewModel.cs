@@ -14,23 +14,16 @@ partial class ConfirmDialogViewModel : ViewModelBase
     public ConfirmDialogViewModel(IConfirmDialogContent dialogContent)
     {
         DialogContent = dialogContent;
-
+        
+        //TODO: make this better
         if (DialogContent.GetConfirmText() is { } confirmText)
-        {
             ConfirmText = confirmText;
-        }
         else
-        {
             ConfirmText = "Confirm";
-        }
         
         if (DialogContent.GetCancelText() is { } cancelText)
-        {
             CancelText = cancelText;
-        }
         else
-        {
             CancelText = "Cancel";
-        }
     }
 }

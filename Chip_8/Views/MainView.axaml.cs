@@ -33,7 +33,7 @@ public partial class MainView : UserControl
         {
             if (e.DataTransfer.TryGetFile() is not { } file) return;
             
-            var path = file.Path.AbsolutePath;
+            var path = file.Path.LocalPath;
             
             if (path.EndsWith(".ch8") || path.EndsWith(".bin"))
             {

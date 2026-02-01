@@ -41,7 +41,7 @@
             
         <Border Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="1" Grid.RowSpan="3" x:Name="ScreenIndicator"
                 IsHitTestVisible="False"
-                Background="{DynamicResource ForegroundColor}"
+                Background="{DynamicResource TextColor}"
                 BorderBrush="White"
                 BorderThickness="1"
                 Opacity="0.3"

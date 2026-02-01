@@ -9,10 +9,10 @@ partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty] private ViewModelBase _currentView;
     [ObservableProperty] private Keyboard _keyboard;
 
-    public MainWindowViewModel(MainViewModel currentView, Keyboard keyboard, InterpreterService interpreterService)
+    public MainWindowViewModel(MainViewModel mainViewModel, Keyboard keyboard, InterpreterService interpreterService)
     {
         //set the current View to the main view
-        CurrentView = currentView;
+        CurrentView = mainViewModel;
         
         //initialize Keyboard to route keypresses to the InterpreterView
         Keyboard = keyboard;
@@ -21,6 +21,11 @@ partial class MainWindowViewModel : ViewModelBase
         WeakReferenceMessenger.Default.Register<InitializeInterpreterMessage>(this, (_, m) =>
         {
             CurrentView = new InterpreterViewModel(m.Value, interpreterService);
+        });
+        
+        WeakReferenceMessenger.Default.Register<InterpreterDisposedMessage>(this, (_, _) =>
+        {
+            CurrentView = mainViewModel;
         });
     }
 }
