@@ -19,7 +19,7 @@
             <Brush x:Key="BackgroundColor">#232323</Brush>
             <Brush x:Key="TextColor">#D1D3D5</Brush>
             
-            <FontFamily x:Key="Icons">/Assets/JetBrainsMonoNerdFont-Bold.ttf#JetBrainsMono NF</FontFamily>
+            <FontFamily x:Key="Icons">avares://Chip_8/Assets/Fonts/#JetBrainsMonoNL NFP</FontFamily>
             
             <ResourceDictionary.MergedDictionaries>
                 <MergeResourceInclude Source="/Styles/Combobox.axaml"></MergeResourceInclude>
