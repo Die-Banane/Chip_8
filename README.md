@@ -14,7 +14,7 @@ Some features like the sound, the XO-CHIP interpreter and the SCHIP interpreter 
 $ git clone https://github.com/Die-Banane/Chip_8.git
 ```
 
-3. navigate to the folder where the .csproj file is located
+3. navigate to the directory where the .csproj file is located
 ```bash
 $ cd Chip_8/Chip_8
 ```
@@ -23,3 +23,27 @@ $ cd Chip_8/Chip_8
 ```bash
 $ dotnet run
 ```
+
+# Keymaps
+
+This is the layout of the COSMAC VIP
+
+![COSMAC VIP keypad layout](./images/COSMAC-keypad.jpg)
+
+on a modern keyboard the mapping looks like this
+
+![keyboard mapping](./images/Keyboard.png)
+
+# Screenshots
+
+### corax+ opcode test (Timendus test suite)
+![corax+ opcode tests](./images/corax+.png)
+
+### flags test (Timendus test suite)
+![flags tests](./images/flags.png)
+
+### quirks test (Timendus test suite)
+![quirks tests](./images/quirks.png)
+
+### tetris
+![tetris](./images/tetris.png)
