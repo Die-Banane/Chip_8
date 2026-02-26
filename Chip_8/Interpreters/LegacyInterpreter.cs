@@ -257,7 +257,7 @@ public class LegacyInterpreter : IInterpreter
                 break;
 
             case 0xd000:
-                if (!_allowDraw)
+                if (!_allowDraw) // wait till the cpu is allowed to draw again
                 {
                     _pc -= 2;
                     break;
@@ -408,7 +408,7 @@ public class LegacyInterpreter : IInterpreter
         if (_delayTimer > 0)
           _delayTimer--;
         
-        _allowDraw = true;
+        _allowDraw = true; // only allow drawing 60 times per second
     }
     
     public void Dispose() => _executing = false;

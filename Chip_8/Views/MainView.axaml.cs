@@ -22,7 +22,7 @@ public partial class MainView : UserControl
     private void OpenFile(object? sender, RoutedEventArgs e)
     {
         if (DataContext is MainViewModel vm)
-            vm.SetUpInterpreterCommand.Execute(null);
+            vm.SetUpInterpreterCommand.Execute(string.Empty);
     }
 
     private void OnDrop(object? sender, DragEventArgs e)

@@ -2,88 +2,110 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:vm="using:Chip_8.ViewModels"
              xmlns:c="using:Chip_8.Converters"
+             xmlns:vm="using:Chip_8.ViewModels"
+             Background="{StaticResource BackgroundColor}"
+             Foreground="{StaticResource TextColor}"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:DataType="vm:SettingsViewModel"
-             Background="{DynamicResource BackgroundColor}"
-             Foreground="{DynamicResource TextColor}"
-             mc:Ignorable="d" d:DesignWidth="550" d:DesignHeight="450"
              x:Class="Chip_8.Views.SettingsView">
     
     <UserControl.Resources>
         <c:VersionToValueConverter x:Key="VersionToValueConverter"/>
         <c:LayoutToValueConverter x:Key="LayoutToValueConverter"/>
     </UserControl.Resources>
-    
-    <Grid ColumnDefinitions="*, *, *"
-          RowDefinitions="*, Auto">
         
-        <StackPanel
-            Margin="10, 5"
-            Spacing="10">
+    <Grid RowDefinitions="*, Auto">
+        <Grid ColumnDefinitions="*, *, *"
+              RowDefinitions="*, Auto">
             
-            <Label>Interpreter Version:</Label>
-            
-            <ComboBox ItemsSource="{Binding Versions}"
-                      SelectedItem="{Binding SelectedVersion, Converter={StaticResource VersionToValueConverter}}"
-                      HorizontalAlignment="Stretch">
-                <ComboBox.ItemTemplate>
-                    <DataTemplate>
-                        <TextBlock Text="{Binding Key}"></TextBlock>
-                    </DataTemplate>
-                </ComboBox.ItemTemplate>
-            </ComboBox>
-        </StackPanel>
-        
-        <StackPanel Grid.Row="0" Grid.Column="1"
-            Margin="10, 5"
-            Spacing="10">
-            
-            <Label>KeyPad layout:</Label>
-            
-            <ComboBox ItemsSource="{Binding Layouts}"
-                      SelectedItem="{Binding SelectedLayout, Converter={StaticResource LayoutToValueConverter}}"
-                      HorizontalAlignment="Stretch">
-                <ComboBox.ItemTemplate>
-                    <DataTemplate>
-                        <TextBlock Text="{Binding Key}"></TextBlock>
-                    </DataTemplate>
-                </ComboBox.ItemTemplate>
-            </ComboBox>  
-        </StackPanel>
-        
-        <StackPanel Grid.Row="0" Grid.Column="2"
-                    Margin="10, 5"
-                    Spacing="10">
-            <Label>CPU frequency:</Label>
-            
-            <!--TODO: make a style foe NumericUpDown-->
-            <NumericUpDown Value="{Binding CpuFrequency}"
-                           Minimum="500"
-                           Maximum="1000" 
-                           Increment="50" />
-        </StackPanel>
-        
-        <Grid Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="3"
-                ColumnDefinitions="*, 5, Auto"
-                Margin="10, 0, 10, 15">
+            <!--Interpreter picker start-->
+            <StackPanel
+                Margin="10, 5"
+                Spacing="10">
                 
-            <Border
-                Background="#343434"
-                BorderBrush="{DynamicResource TextColor}"
-                BorderThickness="1"
-                CornerRadius="3"
-                Padding="5, 0, 0, 0">
+                <Label>Interpreter Version:</Label>
             
-                <TextBlock Text="{Binding Path}"
-                           VerticalAlignment="Center" />
-            </Border>
-            
-            <Button Grid.Column="2"
-                    VerticalAlignment="Stretch"
-                    Classes="IconButton"
-                    Content="&#xf0770;"
-                    Command="{Binding OpenFilePickerCommand}" />
+                <ComboBox ItemsSource="{Binding Versions}"
+                        SelectedItem="{Binding SelectedVersion, Converter={StaticResource VersionToValueConverter}}"
+                        HorizontalAlignment="Stretch">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Key}"></TextBlock>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+            </StackPanel>
+            <!--Interpreter picker end-->
+        
+            <!--Keypad picker start-->
+            <StackPanel Grid.Row="0" Grid.Column="1"
+                Margin="10, 5"
+                Spacing="10">
+                
+                <Label>KeyPad layout:</Label>
+                
+                <ComboBox ItemsSource="{Binding Layouts}"
+                          SelectedItem="{Binding SelectedLayout, Converter={StaticResource LayoutToValueConverter}}"
+                          HorizontalAlignment="Stretch">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Key}"></TextBlock>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>  
+            </StackPanel>
+            <!--Interpreter picker end-->
+        
+            <!--CPU frequency start-->
+            <StackPanel Grid.Row="0" Grid.Column="2"
+                        Margin="10, 5"
+                        Spacing="10">
+                <Label>CPU frequency:</Label>
+                
+                <!--TODO: make a style foe NumericUpDown-->
+                <NumericUpDown Value="{Binding CpuFrequency}"
+                               Minimum="500"
+                               Maximum="1000" 
+                               Increment="50" />
+            </StackPanel>
+            <!--CPU frequency end start-->
+        
+            <Grid Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="3"
+                    ColumnDefinitions="*, 5, Auto"
+                    Margin="10, 0, 10, 15">
+                    
+                <Border
+                    Background="#343434"
+                    BorderBrush="{DynamicResource TextColor}"
+                    BorderThickness="1"
+                    CornerRadius="3"
+                    Padding="5, 0, 0, 0">
+                
+                    <TextBlock Text="{Binding Path}"
+                               VerticalAlignment="Center"
+                               x:Name="FilePath"/>
+                </Border>
+                
+                <Button Grid.Column="2"
+                        VerticalAlignment="Stretch"
+                        Classes="IconButton"
+                        Content="&#xf0770;"
+                        Command="{Binding OpenFilePickerCommand}" />
+            </Grid>
         </Grid>
+        
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="5"
+                    VerticalAlignment="Bottom"
+                    HorizontalAlignment="Right">
+                
+            <Button Content="Cancel"
+                    Click="Cancel_OnClick" />
+                
+            <Button Content="Run"
+                    IsEnabled="{Binding Path,
+                    Converter={x:Static StringConverters.IsNotNullOrEmpty}}" 
+                    Click="Run_OnClick" />
+        </StackPanel>
     </Grid>
 </UserControl>

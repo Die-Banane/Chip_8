@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using Avalonia.Input;
 using Chip_8.Data;
-using Chip_8.CustomControls;
 using Chip_8.Interfaces;
 using Chip_8.Interpreters;
 using Chip_8.ViewModels;
@@ -11,7 +10,7 @@ namespace Chip_8.Services;
 
 public class InterpreterService(Keyboard keyboardService)
 {
-    private readonly Dictionary<Key, byte> azertyKeyMap = new()
+    private readonly Dictionary<Key, byte> _azertyKeyMap = new()
     {
         { Key.X, 0x0 },
         { Key.D1, 0x1 },
@@ -31,7 +30,7 @@ public class InterpreterService(Keyboard keyboardService)
         { Key.V, 0xf }
     };
     
-    private readonly Dictionary<Key, byte> qwertzKeyMap = new()
+    private readonly Dictionary<Key, byte> _qwertzKeyMap = new()
     {
         { Key.X, 0x0 },
         { Key.D1, 0x1 },
@@ -51,7 +50,7 @@ public class InterpreterService(Keyboard keyboardService)
         { Key.V, 0xf }
     };
 
-    private readonly Dictionary<Key, byte> qwertyKeyMap = new()
+    private readonly Dictionary<Key, byte> _qwertyKeyMap = new()
     {
         { Key.X, 0x0 },
         { Key.D1, 0x1 },
@@ -82,17 +81,17 @@ public class InterpreterService(Keyboard keyboardService)
         switch (options.Layout)
         {
             case KeyPadLayouts.Azerty:
-                keyMap = azertyKeyMap;
+                keyMap = _azertyKeyMap;
                 keyboardService.KeyMap = keyMap;
                 break;
             
             case KeyPadLayouts.Qwertz:
-                keyMap = qwertzKeyMap;
+                keyMap = _qwertzKeyMap;
                 keyboardService.KeyMap = keyMap;
                 break;
 
             case KeyPadLayouts.Qwerty:
-                keyMap = qwertyKeyMap;
+                keyMap = _qwertyKeyMap;
                 keyboardService.KeyMap = keyMap;
                 break;
             

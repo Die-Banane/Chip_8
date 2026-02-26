@@ -1,6 +1,7 @@
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
+using Chip_8.Interfaces;
 using Chip_8.Services;
 using Chip_8.ViewModels;
 using Chip_8.Views;
@@ -20,7 +21,8 @@ public partial class App : Application
         var collection = new ServiceCollection();
 
         collection.AddSingleton<MainWindowViewModel>();
-        collection.AddSingleton<DialogFactory>();
+        collection.AddSingleton<FilePickerFactory>();
+        collection.AddSingleton<IDialogService, DialogService>();
         collection.AddSingleton<InterpreterService>();
         collection.AddSingleton<Keyboard>();
         collection.AddTransient<MainViewModel>();

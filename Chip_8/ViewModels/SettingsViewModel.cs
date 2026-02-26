@@ -5,15 +5,15 @@ using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Platform.Storage;
-using Chip_8.Interfaces;
 using Chip_8.Data;
+using Chip_8.Interfaces;
 using Chip_8.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
 namespace Chip_8.ViewModels;
 
-partial class SettingsViewModel : ViewModelBase, IConfirmDialogContent
+partial class SettingsViewModel : ViewModelBase, IDialog<InterpreterOptions>
 {
     [ObservableProperty]
     private ObservableCollection<KeyValuePair<string, Chip8Versions>> _versions =
@@ -34,17 +34,17 @@ partial class SettingsViewModel : ViewModelBase, IConfirmDialogContent
     //default settings
     [ObservableProperty] private Chip8Versions _selectedVersion = Chip8Versions.Legacy;
     [ObservableProperty] private KeyPadLayouts _selectedLayout = KeyPadLayouts.Qwerty;
-    [ObservableProperty] private string _path = string.Empty;
     [ObservableProperty] private int _cpuFrequency = 700;
+    [ObservableProperty] private string _path = string.Empty;
     
-    private readonly DialogFactory _dialogFactory;
+    private readonly FilePickerFactory _pickerFactory;
 
-    public SettingsViewModel(DialogFactory dialogFactory, string? path = null)
+    public SettingsViewModel(FilePickerFactory pickerFactory, string? path = null)
     {
         if (path is not null)
             Path = path;
         
-        _dialogFactory = dialogFactory;
+        _pickerFactory = pickerFactory;
     }
 
     [RelayCommand]
@@ -54,23 +54,29 @@ partial class SettingsViewModel : ViewModelBase, IConfirmDialogContent
             desktop.MainWindow?.StorageProvider is not { } provider)
             return;
         
-        var file = await _dialogFactory.CreateFilePickerDialog(provider);
+        var file = await _pickerFactory.Create(provider);
 
         if (file.Count > 0)
             Path = file.First().TryGetLocalPath()!;
     }
 
-    public object? OnConfirm()
+    public InterpreterOptions GetResult()
     {
-        if (string.IsNullOrEmpty(Path)) return null;
+        if (string.IsNullOrEmpty(Path))
+            return InterpreterOptions.InvalidOptions;
+
         return new InterpreterOptions(SelectedVersion, SelectedLayout, Path, CpuFrequency);
     }
-
-    public object? OnCancel() => null;
-
-    public string GetConfirmText() => "Run";
-
-    public string GetCancelText() => "Cancel";
 }
 
-public record InterpreterOptions(Chip8Versions Version, KeyPadLayouts Layout, string Path, int Frequency);
+public record InterpreterOptions(Chip8Versions Version, KeyPadLayouts Layout, string Path, int Frequency)
+{
+    public static readonly InterpreterOptions InvalidOptions = 
+        new
+        (
+            default,
+            default,
+            string.Empty,
+            0
+        );
+}
