@@ -1,21 +1,22 @@
-﻿using Chip_8.Services;
-using CommunityToolkit.Mvvm.Input;
+﻿using CommunityToolkit.Mvvm.Input;
 using System.Threading.Tasks;
 using Chip_8.Interfaces;
+using Chip_8.Views;
 using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.Mvvm.Messaging.Messages;
 
 namespace Chip_8.ViewModels;
 
-partial class MainViewModel(FilePickerFactory filePickerFactory, IDialogService dialogService) : ViewModelBase
+partial class MainViewModel(IDialogService dialogService, MainWindow mainWindow) : ViewModelBase
 {
     [RelayCommand]
     private async Task SetUpInterpreter(string? path = null)
     {
-        var result = await dialogService.ShowDialog(new SettingsViewModel(filePickerFactory, path));
+        var result = await dialogService.ShowDialog(new SettingsViewModel(mainWindow, path));
         
-        if (result != InterpreterOptions.InvalidOptions)
-            WeakReferenceMessenger.Default.Send(new InitializeInterpreterMessage(result));
+        if (result.Confirmed)
+            WeakReferenceMessenger.Default.Send(new InitializeInterpreterMessage(result.Value!));
+            
     }
 }
 

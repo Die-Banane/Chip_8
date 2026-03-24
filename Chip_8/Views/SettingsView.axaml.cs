@@ -7,6 +7,8 @@ namespace Chip_8.Views;
 
 public partial class SettingsView : UserControl
 {
+    private bool _canClose;
+    
     public SettingsView()
     {
         InitializeComponent();
@@ -17,36 +19,37 @@ public partial class SettingsView : UserControl
         base.OnAttachedToVisualTree(e);
 
         if (TopLevel.GetTopLevel(this) is Window window) //prevent Window from closing with alt + f4
-            window.Closing += (_, args) =>
-            {
-                args.Cancel = true;
-            };
+            window.Closing += OnWindowClosing;
+    }
+
+    protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
+    {
+        base.OnDetachedFromVisualTree(e);
+        
+        if (TopLevel.GetTopLevel(this) is Window window)
+            window.Closing -= OnWindowClosing;
     }
 
     private void Cancel_OnClick(object? sender, RoutedEventArgs e)
     {
+        _canClose = true;
+        
         var window = TopLevel.GetTopLevel(this) as Window;
         
         if (DataContext is SettingsViewModel vm)
-            vm.Path = string.Empty; //set Path to string.Empty so that GetResult returns InvalidOptions
-        
-        window?.Closing += (_, args) =>
-        {
-            args.Cancel = false;
-        };
+            vm.Cancel();
         
         window?.Close();
     }
 
     private void Run_OnClick(object? sender, RoutedEventArgs e)
     {
-        var window = TopLevel.GetTopLevel(this) as Window;
+        _canClose = true;
         
-        window?.Closing += (_, args) =>
-        {
-            args.Cancel = false;
-        };
+        var window = TopLevel.GetTopLevel(this) as Window;
         
         window?.Close();
     }
+
+    private void OnWindowClosing(object? sender, WindowClosingEventArgs e) => e.Cancel = !_canClose;
 }

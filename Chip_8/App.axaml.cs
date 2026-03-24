@@ -21,20 +21,19 @@ public partial class App : Application
         var collection = new ServiceCollection();
 
         collection.AddSingleton<MainWindowViewModel>();
-        collection.AddSingleton<FilePickerFactory>();
         collection.AddSingleton<IDialogService, DialogService>();
         collection.AddSingleton<InterpreterService>();
         collection.AddSingleton<Keyboard>();
         collection.AddTransient<MainViewModel>();
+        collection.AddSingleton<MainWindow>();
         
         var serviceProvider = collection.BuildServiceProvider();
         
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            desktop.MainWindow = new MainWindow
-            {
-                DataContext = serviceProvider.GetRequiredService<MainWindowViewModel>()
-            };
+            var mainWindow = serviceProvider.GetRequiredService<MainWindow>();
+            mainWindow.DataContext = serviceProvider.GetRequiredService<MainWindowViewModel>();
+            desktop.MainWindow = mainWindow;
         }
 
         base.OnFrameworkInitializationCompleted();

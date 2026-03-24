@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 using Avalonia.Input;
 using Chip_8.Data;
 using Chip_8.Interfaces;
@@ -12,19 +13,24 @@ namespace Chip_8.Interpreters;
 
 public class LegacyInterpreter : IInterpreter
 {
+    public Dictionary<Key, byte>? KeyMap { get; }
+    
     private readonly DisplayBuffer _displayBuffer;
     private readonly string _programPath;
     private readonly Random _random;
     private readonly Keyboard _keyboard;
     private readonly int _frequency;
+    
+    private Task _runTask = Task.CompletedTask;
+    private CancellationTokenSource? _cts;
 
     private bool _allowDraw;
-    private bool _executing;
     
     private ushort _pc, _index;
-    private byte[] _v = null!;
+    private readonly byte[] _v = new byte[16];
 
-    private byte[] _memory = null!, program = null!;
+    private readonly byte[] _memory = new byte[4096]; 
+    private byte[] _program = [];
 
     private readonly byte[] _font =
     [
@@ -46,12 +52,10 @@ public class LegacyInterpreter : IInterpreter
         0xF0, 0x80, 0xF0, 0x80, 0x80  // F
     ];
 
-    private Stack<ushort> _stack = null!;
+    private readonly Stack<ushort> _stack = new();
 
-    private byte x, y, n, nn, _soundTimer, _delayTimer;
-    private ushort nnn;
-
-    public Dictionary<Key, byte>? KeyMap { get; }
+    private byte _x, _y, _n, _nn, _soundTimer, _delayTimer;
+    private ushort _nnn;
 
     public LegacyInterpreter(DisplayBuffer displayBuffer,
         string programPath,
@@ -72,58 +76,70 @@ public class LegacyInterpreter : IInterpreter
     private void InitializeCpu()
     { 
         _pc = 0x200;
-        _v = new byte[16];
-
-        _memory = new byte[4096];
-        _stack = new Stack<ushort>();
 
         _font.CopyTo(_memory, 0x50);
 
-        program = File.ReadAllBytes(_programPath);
+        _program = File.ReadAllBytes(_programPath);
 
-        program.CopyTo(_memory, 0x200);
+        _program.CopyTo(_memory, 0x200);
 
         _allowDraw = true;
-        _executing = true;
     }
 
-    public void Run()
+    public async Task RunAsync()
     {
-        var sw = Stopwatch.StartNew();
+        _cts = new();
         
-        long ticksPerInstruction = Stopwatch.Frequency / _frequency;
-        long ticksPerTimerTick = Stopwatch.Frequency / 60;
-        
-        long nextClockTick = sw.ElapsedTicks;
-        long nextTimerTick = nextClockTick;
-
-        while (_executing)
+        _runTask = Task.Run(() =>
         {
-            long now = sw.ElapsedTicks;
-            
-            if (now >= nextTimerTick)
-            {
-                Tick();
-                nextTimerTick += ticksPerTimerTick;
-                
-                if (now - nextTimerTick > ticksPerTimerTick)
-                    nextTimerTick = now;
-            }
-            
-            //timings for the CPU step
-            if (now >= nextClockTick) //step the CPU when enough time has passed
-            {
-                Step();
-                nextClockTick += ticksPerInstruction; //calculate when the next tick should happen
-
-                if (now - nextClockTick > ticksPerInstruction) //correct possible drift
-                    nextClockTick = now;
-            }
-            else //halt the cpu if we need to
-                Thread.SpinWait(20);
-        }
+            var sw = Stopwatch.StartNew();
         
-        sw.Stop();
+            long ticksPerInstruction = Stopwatch.Frequency / _frequency;
+            long ticksPerTimerTick = Stopwatch.Frequency / 60;
+        
+            long nextClockTick = sw.ElapsedTicks;
+            long nextTimerTick = nextClockTick;
+
+            while (!_cts.IsCancellationRequested)
+            {
+                long now = sw.ElapsedTicks;
+            
+                if (now >= nextTimerTick)
+                {
+                    Tick();
+                    nextTimerTick += ticksPerTimerTick;
+                
+                    if (now - nextTimerTick > ticksPerTimerTick)
+                        nextTimerTick = now;
+                }
+            
+                //timings for the CPU step
+                if (now >= nextClockTick) //step the CPU when enough time has passed
+                {
+                    Step();
+                    nextClockTick += ticksPerInstruction; //calculate when the next tick should happen
+
+                    if (now - nextClockTick > ticksPerInstruction) //correct possible drift
+                        nextClockTick = now;
+                }
+                else //halt the cpu if we need to
+                    Thread.SpinWait(20);
+            }
+        
+            sw.Stop();
+        }); //_cts.Token
+        
+        await _runTask;
+    }
+
+    public async Task StopAsync()
+    {
+        if (_cts is not null)
+            await _cts.CancelAsync().ConfigureAwait(false);
+        
+        await _runTask.ConfigureAwait(false);
+        
+        _cts!.Dispose();
     }
 
     private void Step()
@@ -133,7 +149,7 @@ public class LegacyInterpreter : IInterpreter
         switch (opCode & 0xf000)
         {
             case 0x0000:
-                switch (nn)
+                switch (_nn)
                 { 
                     case 0x00e0:
                         _displayBuffer.Clear();
@@ -146,114 +162,114 @@ public class LegacyInterpreter : IInterpreter
                 break;
 
                 case 0x1000:
-                    _pc = nnn;
+                    _pc = _nnn;
                     break;
 
                 case 0x2000:
                     _stack.Push(_pc);
-                    _pc = nnn;
+                    _pc = _nnn;
                     break;
 
                 case 0x3000:
-                    _pc += (ushort)(_v[x] == nn ? 2 : 0);
+                    _pc += (ushort)(_v[_x] == _nn ? 2 : 0);
                     break;
 
                 case 0x4000:
-                    _pc += (ushort)(_v[x] != nn ? 2 : 0);
+                    _pc += (ushort)(_v[_x] != _nn ? 2 : 0);
                     break;
 
                 case 0x5000:
-                    _pc += (ushort)(_v[x] == _v[y] ? 2 : 0);
+                    _pc += (ushort)(_v[_x] == _v[_y] ? 2 : 0);
                     break;
 
                 case 0x6000:
-                    _v[x] = nn;
+                    _v[_x] = _nn;
                     break;
 
                 case 0x7000:
-                    _v[x] += nn;
+                    _v[_x] += _nn;
                     break;
 
                 case 0x8000:
-                    switch (n)
+                    switch (_n)
                     {
                         case 0x0000:
-                            _v[x] = _v[y];
+                            _v[_x] = _v[_y];
                             break;
 
                         case 0x0001:
-                            _v[x] = (byte)(_v[x] | _v[y]);
+                            _v[_x] = (byte)(_v[_x] | _v[_y]);
                             _v[0xf] = 0;
                             break;
 
                         case 0x0002:
-                            _v[x] = (byte)(_v[x] & _v[y]);
+                            _v[_x] = (byte)(_v[_x] & _v[_y]);
                             _v[0xf] = 0;
                             break;
 
                         case 0x0003:
-                            _v[x] = (byte)(_v[x] ^ _v[y]);
+                            _v[_x] = (byte)(_v[_x] ^ _v[_y]);
                             _v[0xf] = 0;
                             break;
 
                         case 0x0004:
-                            byte vX = _v[x];
-                            byte vY = _v[y];
+                            byte vX = _v[_x];
+                            byte vY = _v[_y];
                             byte sum = (byte)(vX + vY);
 
-                            _v[x] = sum;
+                            _v[_x] = sum;
 
                             _v[0xf] = (byte)(vX + vY > 255 ? 1 : 0);
                             break;
 
                         case 0x0005:
-                            sum = (byte)(_v[x] - _v[y]);
-                            byte carry = (byte)(_v[x] >= _v[y] ? 1 : 0);
+                            sum = (byte)(_v[_x] - _v[_y]);
+                            byte carry = (byte)(_v[_x] >= _v[_y] ? 1 : 0);
 
-                            _v[x] = sum;
+                            _v[_x] = sum;
                             _v[0xf] = carry;
                             break;
 
                         case 0x0006:
-                            vY = _v[y];
+                            vY = _v[_y];
 
-                            _v[x] = (byte)(vY >> 1);
+                            _v[_x] = (byte)(vY >> 1);
                             _v[0xf] = (byte)(vY & 0x1);
                             break;
 
                         case 0x0007:
-                            sum = (byte)(_v[y] - _v[x]);
-                            carry = (byte)(_v[y] >= _v[x] ? 1 : 0);
+                            sum = (byte)(_v[_y] - _v[_x]);
+                            carry = (byte)(_v[_y] >= _v[_x] ? 1 : 0);
 
-                            _v[x] = sum;
+                            _v[_x] = sum;
                             _v[0xf] = carry;
                             break;
 
                         case 0x000e:
-                            vY = _v[y];
+                            vY = _v[_y];
 
-                            _v[x] = (byte)(vY << 1);
+                            _v[_x] = (byte)(vY << 1);
                             _v[0xf] = (byte)((vY & 0x80) == 0x80 ? 1 : 0);
                             break;
                     }
                     break;
 
             case 0x9000:
-                _pc += (ushort)(_v[x] != _v[y] ? 2 : 0);
+                _pc += (ushort)(_v[_x] != _v[_y] ? 2 : 0);
                 break;
 
             case 0xa000:
-                  _index = nnn;
+                  _index = _nnn;
                   break;
 
             case 0xb000:
-                  _pc = (ushort)(nnn + _v[0]);
+                  _pc = (ushort)(_nnn + _v[0]);
                   break;
 
             case 0xc000:
                 byte rnd = (byte)_random.NextInt64(0, 256);
 
-                _v[x] = (byte)(rnd & nn);
+                _v[_x] = (byte)(rnd & _nn);
                 break;
 
             case 0xd000:
@@ -266,25 +282,25 @@ public class LegacyInterpreter : IInterpreter
                 break;
 
             case 0xe000: 
-                switch (nn)
+                switch (_nn)
                 { 
                     case 0x009e:
-                        if (_keyboard.IsKeyDown(_v[x]))
+                        if (_keyboard.IsKeyDown(_v[_x]))
                             _pc += 2;
                         break;
 
                     case 0x00a1:
-                        if (!_keyboard.IsKeyDown(_v[x])) 
+                        if (!_keyboard.IsKeyDown(_v[_x])) 
                             _pc += 2;
                         break;
                 }
                 break;
 
             case 0xf000: 
-                switch (nn)
+                switch (_nn)
                 {
                     case 0x0007:
-                        _v[x] = _delayTimer;
+                        _v[_x] = _delayTimer;
                         break;
 
                     case 0x000a:
@@ -298,53 +314,53 @@ public class LegacyInterpreter : IInterpreter
                             _pc -= 2;
                         else
                         {
-                            _v[x] = _keyboard.PendingKey;
+                            _v[_x] = _keyboard.PendingKey;
                             _keyboard.PendingKey = Keyboard.InvalidKey;
                             _keyboard.WaitingForKey = false;
                         }
                         break;
 
                     case 0x0015:
-                        _delayTimer = _v[x];
+                        _delayTimer = _v[_x];
                         break;
 
                     case 0x0018:
-                        _soundTimer = _v[x];
+                        _soundTimer = _v[_x];
                         break;
 
                     case 0x001e:
-                        byte vX = _v[x];
-                        _v[0xf] = (byte)(_index + _v[x] > 0xfff ? 1 : 0);
+                        byte vX = _v[_x];
+                        _v[0xf] = (byte)(_index + _v[_x] > 0xfff ? 1 : 0);
 
                         _index += vX;
                         break;
 
                     case 0x0029:
-                        _index = (ushort)(0x50 + 5 * (_v[x] & 0xf));
+                        _index = (ushort)(0x50 + 5 * (_v[_x] & 0xf));
                         break;
 
                     case 0x0033:
-                        _memory[_index + 2] = (byte)(_v[x] % 10);
-                        _memory[_index + 1] = (byte)(_v[x] / 10 % 10);
-                        _memory[_index] = (byte)(_v[x] / 10 / 10);
+                        _memory[_index + 2] = (byte)(_v[_x] % 10);
+                        _memory[_index + 1] = (byte)(_v[_x] / 10 % 10);
+                        _memory[_index] = (byte)(_v[_x] / 10 / 10);
                         break;
 
                     case 0x0055:
-                        for (int j = 0; j <= x; j++)
+                        for (int j = 0; j <= _x; j++)
                         {
                             _memory[_index + j] = _v[j];
                         }
 
-                        _index = (ushort)(_index + x + 1);
+                        _index = (ushort)(_index + _x + 1);
                         break;
 
                     case 0x0065:
-                        for (int j = 0; j <= x; j++)
+                        for (int j = 0; j <= _x; j++)
                         {
                             _v[j] = _memory[_index + j];
                         }
 
-                        _index = (ushort)(_index + x + 1);
+                        _index = (ushort)(_index + _x + 1);
                         break;
                 }
                 break;
@@ -359,12 +375,12 @@ public class LegacyInterpreter : IInterpreter
     {
         _allowDraw = false;
         
-        int xPos = _v[x] % 64;
-        int yPos = _v[y] % 32;
+        int xPos = _v[_x] % 64;
+        int yPos = _v[_y] % 32;
 
         _v[0xf] = 0;
 
-        for (int j = 0; j < n; j++)
+        for (int j = 0; j < _n; j++)
         {
             byte row = _memory[_index + j];
 
@@ -390,11 +406,11 @@ public class LegacyInterpreter : IInterpreter
     {
         ushort opCode = (ushort)((_memory[_pc] << 8) | _memory[_pc + 1]);
 
-        x = (byte)((opCode & 0x0f00) >> 8);
-        y = (byte)((opCode & 0x00f0) >> 4);
-        n = (byte)(opCode & 0x000f);
-        nn = (byte)(opCode & 0x00ff);
-        nnn = (ushort)(opCode & 0xfff);
+        _x = (byte)((opCode & 0x0f00) >> 8);
+        _y = (byte)((opCode & 0x00f0) >> 4);
+        _n = (byte)(opCode & 0x000f);
+        _nn = (byte)(opCode & 0x00ff);
+        _nnn = (ushort)(opCode & 0xfff);
 
         _pc += 2;
         return opCode;
@@ -410,6 +426,4 @@ public class LegacyInterpreter : IInterpreter
         
         _allowDraw = true; // only allow drawing 60 times per second
     }
-    
-    public void Dispose() => _executing = false;
 }

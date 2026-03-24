@@ -6,8 +6,10 @@ namespace Chip_8.ViewModels;
 
 partial class MainWindowViewModel : ViewModelBase
 {
-    [ObservableProperty] private ViewModelBase _currentView;
-    [ObservableProperty] private Keyboard _keyboard;
+    [ObservableProperty]
+    private ViewModelBase _currentView;
+    
+    public Keyboard Keyboard { get; }
 
     public MainWindowViewModel(MainViewModel mainViewModel, Keyboard keyboard, InterpreterService interpreterService)
     {

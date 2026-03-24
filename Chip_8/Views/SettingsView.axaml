@@ -14,8 +14,8 @@
         <c:VersionToValueConverter x:Key="VersionToValueConverter"/>
         <c:LayoutToValueConverter x:Key="LayoutToValueConverter"/>
     </UserControl.Resources>
-        
-    <Grid RowDefinitions="*, Auto">
+    
+    <Grid RowDefinitions="*, Auto" Margin="10">
         <Grid ColumnDefinitions="*, *, *"
               RowDefinitions="*, Auto">
             

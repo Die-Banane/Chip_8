@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Avalonia.Input;
 using Chip_8.Data;
 using Chip_8.Interfaces;
@@ -72,9 +73,11 @@ public class InterpreterService(Keyboard keyboardService)
 
     public IInterpreter? CurrentInstance { get; private set; }
 
-    public IInterpreter CreateInterpreter(InterpreterOptions options, DisplayBuffer displayBuffer)
+    public async Task<IInterpreter> CreateInterpreterAsync(InterpreterOptions options, DisplayBuffer displayBuffer)
     {
-        CurrentInstance?.Dispose();
+        //TODO: fix Bug where you can not start another session after closing one
+        if (CurrentInstance is not null)
+            await CurrentInstance.StopAsync().ConfigureAwait(false);
         
         Dictionary<Key, byte> keyMap;
 
@@ -116,5 +119,11 @@ public class InterpreterService(Keyboard keyboardService)
             default:
                 throw new InvalidOperationException();
         }
+    }
+    
+    public async Task StopCurrentAsync()
+    {
+        if (CurrentInstance is not null)
+            await CurrentInstance.StopAsync().ConfigureAwait(false);
     }
 }

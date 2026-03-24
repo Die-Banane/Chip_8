@@ -1,6 +1,8 @@
-﻿namespace Chip_8.Interfaces;
+﻿using Chip_8.Data;
 
-public interface IDialog<out TResult>
+namespace Chip_8.Interfaces;
+
+public interface IDialog<TResult>
 {
-    TResult GetResult();
+    DialogResult<TResult> GetResult();
 }

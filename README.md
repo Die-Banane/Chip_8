@@ -1,6 +1,6 @@
 # Description
 
-#### This is a simple CHIP-8 emulator written in C#. It features support for multiple keyboard layouts and 3 different versions of the CHIP-8 interpreter. I also included a few test ROMs from the [Timendus CHIP 8 test suite](https://github.com/Timendus/chip8-test-suite) which I used to test the emulator.
+#### This is a simple CHIP-8 emulator written in C#. It features support for multiple keyboard layouts and 3 different versions of the CHIP-8 interpreter. I use the test ROMs from the [Timendus CHIP 8 test suite](https://github.com/Timendus/chip8-test-suite) to test and debug my emulator, I include screenshots from some of the tests.
 
 >**NOTE:**
 Some features like the sound, the XO-CHIP interpreter and the SCHIP interpreter do not work yet because this project is still a work in progress.

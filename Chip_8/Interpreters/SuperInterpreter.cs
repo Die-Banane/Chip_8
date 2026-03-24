@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using Avalonia.Input;
 using Chip_8.Interfaces;
 
@@ -9,12 +11,12 @@ public class SuperInterpreter : IInterpreter
 {
     public Dictionary<Key, byte>? KeyMap { get; set; }
 
-    public void Run()
+    public async Task RunAsync()
     {
         throw new NotImplementedException();
     }
 
-    public void Dispose()
+    public async Task StopAsync()
     {
         throw new NotImplementedException();
     }
