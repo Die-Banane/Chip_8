@@ -11,6 +11,8 @@ public class SuperInterpreter : IInterpreter
 {
     public Dictionary<Key, byte>? KeyMap { get; set; }
 
+    public CancellationTokenSource Cts { get; }
+
     public async Task RunAsync()
     {
         throw new NotImplementedException();

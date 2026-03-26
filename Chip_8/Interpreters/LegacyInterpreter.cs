@@ -20,11 +20,11 @@ public class LegacyInterpreter : IInterpreter
     private readonly Random _random;
     private readonly Keyboard _keyboard;
     private readonly int _frequency;
-    
-    private Task _runTask = Task.CompletedTask;
-    private CancellationTokenSource? _cts;
 
     private bool _allowDraw;
+    
+    private Task _runTask = Task.CompletedTask;
+    private readonly CancellationTokenSource _cts = new();
     
     private ushort _pc, _index;
     private readonly byte[] _v = new byte[16];
@@ -88,8 +88,6 @@ public class LegacyInterpreter : IInterpreter
 
     public async Task RunAsync()
     {
-        _cts = new();
-        
         _runTask = Task.Run(() =>
         {
             var sw = Stopwatch.StartNew();
@@ -134,12 +132,9 @@ public class LegacyInterpreter : IInterpreter
 
     public async Task StopAsync()
     {
-        if (_cts is not null)
-            await _cts.CancelAsync().ConfigureAwait(false);
+        await _cts.CancelAsync().ConfigureAwait(false);
         
-        await _runTask.ConfigureAwait(false);
-        
-        _cts!.Dispose();
+        await _runTask;
     }
 
     private void Step()

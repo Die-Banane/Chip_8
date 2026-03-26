@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using Avalonia.Input;
 using Chip_8.Data;
 using Chip_8.Interfaces;
@@ -71,14 +70,8 @@ public class InterpreterService(Keyboard keyboardService)
         { Key.V, 0xf }
     };
 
-    public IInterpreter? CurrentInstance { get; private set; }
-
-    public async Task<IInterpreter> CreateInterpreterAsync(InterpreterOptions options, DisplayBuffer displayBuffer)
+    public IInterpreter BuildInterpreter(InterpreterOptions options, DisplayBuffer displayBuffer)
     {
-        //TODO: fix Bug where you can not start another session after closing one
-        if (CurrentInstance is not null)
-            await CurrentInstance.StopAsync().ConfigureAwait(false);
-        
         Dictionary<Key, byte> keyMap;
 
         switch (options.Layout)
@@ -105,25 +98,16 @@ public class InterpreterService(Keyboard keyboardService)
         switch (options.Version)
         {
             case Chip8Versions.Legacy:
-                CurrentInstance = new LegacyInterpreter(displayBuffer, options.Path, keyMap, keyboardService, options.Frequency);
-                return CurrentInstance;
+                return new LegacyInterpreter(displayBuffer, options.Path, keyMap, keyboardService, options.Frequency);
             
             case Chip8Versions.SuperChip:
-                CurrentInstance = new SuperInterpreter();
-                return CurrentInstance;
+                return new SuperInterpreter();
             
             case Chip8Versions.XoChip:
-                CurrentInstance = new XoInterpreter();
-                return CurrentInstance;
+                return new XoInterpreter();
             
             default:
                 throw new InvalidOperationException();
         }
-    }
-    
-    public async Task StopCurrentAsync()
-    {
-        if (CurrentInstance is not null)
-            await CurrentInstance.StopAsync().ConfigureAwait(false);
     }
 }

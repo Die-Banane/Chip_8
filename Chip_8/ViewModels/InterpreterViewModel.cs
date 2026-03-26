@@ -1,4 +1,4 @@
-﻿using System.Threading;
+﻿using System;
 using System.Threading.Tasks;
 using Chip_8.Data;
 using Chip_8.Interfaces;
@@ -13,25 +13,18 @@ public partial class InterpreterViewModel : ViewModelBase
 {
     [ObservableProperty] private DisplayBuffer _displayBuffer = new();
     
-    private readonly InterpreterService _interpreterService;
-    private readonly InterpreterOptions _options;
-    
+    private readonly IInterpreter _cpu;
+
     public InterpreterViewModel(InterpreterOptions options, InterpreterService interpreterService)
     {
-        _interpreterService = interpreterService;
-        _options = options;
-    }
-
-    public async Task StartExecutionAsync()
-    {
-        IInterpreter cpu = await _interpreterService.CreateInterpreterAsync(_options, DisplayBuffer);
-        await cpu.RunAsync().ConfigureAwait(false);
+        _cpu = interpreterService.BuildInterpreter(options, DisplayBuffer);
+        _ = _cpu.RunAsync().ContinueWith(_ => throw new OperationCanceledException());
     }
     
     [RelayCommand]
     private async Task CloseInterpreterAsync()
     {
-        await _interpreterService.StopCurrentAsync().ConfigureAwait(false);
+        await _cpu.StopAsync();
         
         WeakReferenceMessenger.Default.Send(new InterpreterDisposedMessage());
     }
