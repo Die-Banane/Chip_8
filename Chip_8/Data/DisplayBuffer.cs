@@ -2,8 +2,8 @@
 
 public class DisplayBuffer
 {
-    public const int Width = 64;
-    public const int Height = 32;
+    public const int Width = Chip8.DisplayWidth;
+    public const int Height = Chip8.DisplayHeight;
     public bool IsDirty { get; set; }
     public bool[] Buffer { get; } = new bool[Width * Height];
 

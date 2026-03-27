@@ -29,26 +29,6 @@ public class LegacyInterpreter : IInterpreter
     private readonly byte[] _memory = new byte[4096]; 
     private byte[] _program = [];
 
-    private readonly byte[] _font =
-    [
-        0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
-        0x20, 0x60, 0x20, 0x20, 0x70, // 1
-        0xF0, 0x10, 0xF0, 0x80, 0xF0, // 2
-        0xF0, 0x10, 0xF0, 0x10, 0xF0, // 3
-        0x90, 0x90, 0xF0, 0x10, 0x10, // 4
-        0xF0, 0x80, 0xF0, 0x10, 0xF0, // 5
-        0xF0, 0x80, 0xF0, 0x90, 0xF0, // 6
-        0xF0, 0x10, 0x20, 0x40, 0x40, // 7
-        0xF0, 0x90, 0xF0, 0x90, 0xF0, // 8
-        0xF0, 0x90, 0xF0, 0x10, 0xF0, // 9
-        0xF0, 0x90, 0xF0, 0x90, 0x90, // A
-        0xE0, 0x90, 0xE0, 0x90, 0xE0, // B
-        0xF0, 0x80, 0x80, 0x80, 0xF0, // C
-        0xE0, 0x90, 0x90, 0x90, 0xE0, // D
-        0xF0, 0x80, 0xF0, 0x80, 0xF0, // E
-        0xF0, 0x80, 0xF0, 0x80, 0x80  // F
-    ];
-
     private readonly Stack<ushort> _stack = new();
 
     private byte _x, _y, _n, _nn, _soundTimer, _delayTimer;
@@ -70,13 +50,13 @@ public class LegacyInterpreter : IInterpreter
 
     private void InitializeCpu()
     { 
-        _pc = 0x200;
+        _pc = Chip8.StartAddress;
 
-        _font.CopyTo(_memory, 0x50);
+        Chip8.Font.CopyTo(_memory, Chip8.FontAddress);
 
         _program = File.ReadAllBytes(_programPath);
 
-        _program.CopyTo(_memory, 0x200);
+        _program.CopyTo(_memory, Chip8.StartAddress);
 
         _allowDraw = true;
     }
@@ -88,7 +68,7 @@ public class LegacyInterpreter : IInterpreter
             var sw = Stopwatch.StartNew();
         
             long ticksPerInstruction = Stopwatch.Frequency / _frequency;
-            long ticksPerTimerTick = Stopwatch.Frequency / 60;
+            long ticksPerTimerTick = Stopwatch.Frequency / 60; //divide by 60 to get 60 hz timing
         
             long nextClockTick = sw.ElapsedTicks;
             long nextTimerTick = nextClockTick;
@@ -374,7 +354,7 @@ public class LegacyInterpreter : IInterpreter
         {
             byte row = _memory[_index + j];
 
-            int tempX = xPos;
+            int tempX = xPos  ;
 
             for (int k = 7; k >= 0; k--)
             {
