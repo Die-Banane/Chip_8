@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using Avalonia.Input;
 using Chip_8.Data;
 using Chip_8.Interfaces;
 using Chip_8.Services;
@@ -13,8 +12,6 @@ namespace Chip_8.Interpreters;
 
 public class LegacyInterpreter : IInterpreter
 {
-    public Dictionary<Key, byte>? KeyMap { get; }
-    
     private readonly DisplayBuffer _displayBuffer;
     private readonly string _programPath;
     private readonly Random _random;
@@ -59,11 +56,9 @@ public class LegacyInterpreter : IInterpreter
 
     public LegacyInterpreter(DisplayBuffer displayBuffer,
         string programPath,
-        Dictionary<Key, byte>? keyMap,
         Keyboard keyboard,
         int frequency)
     {
-          KeyMap = keyMap;
           _keyboard = keyboard;
           _programPath = programPath;
           _displayBuffer = displayBuffer;
@@ -86,9 +81,9 @@ public class LegacyInterpreter : IInterpreter
         _allowDraw = true;
     }
 
-    public async Task RunAsync()
+    public Task RunAsync()
     {
-        _runTask = Task.Run(() =>
+        _runTask = Task.Factory.StartNew(() =>
         {
             var sw = Stopwatch.StartNew();
         
@@ -125,9 +120,9 @@ public class LegacyInterpreter : IInterpreter
             }
         
             sw.Stop();
-        }); //_cts.Token
+        }, TaskCreationOptions.LongRunning);
         
-        await _runTask;
+        return _runTask;
     }
 
     public async Task StopAsync()

@@ -72,23 +72,18 @@ public class InterpreterService(Keyboard keyboardService)
 
     public IInterpreter BuildInterpreter(InterpreterOptions options, DisplayBuffer displayBuffer)
     {
-        Dictionary<Key, byte> keyMap;
-
         switch (options.Layout)
         {
             case KeyPadLayouts.Azerty:
-                keyMap = _azertyKeyMap;
-                keyboardService.KeyMap = keyMap;
+                keyboardService.KeyMap = _azertyKeyMap;
                 break;
             
             case KeyPadLayouts.Qwertz:
-                keyMap = _qwertzKeyMap;
-                keyboardService.KeyMap = keyMap;
+                keyboardService.KeyMap = _qwertzKeyMap;
                 break;
 
             case KeyPadLayouts.Qwerty:
-                keyMap = _qwertyKeyMap;
-                keyboardService.KeyMap = keyMap;
+                keyboardService.KeyMap = _qwertyKeyMap;
                 break;
             
             default:
@@ -98,7 +93,7 @@ public class InterpreterService(Keyboard keyboardService)
         switch (options.Version)
         {
             case Chip8Versions.Legacy:
-                return new LegacyInterpreter(displayBuffer, options.Path, keyMap, keyboardService, options.Frequency);
+                return new LegacyInterpreter(displayBuffer, options.Path, keyboardService, options.Frequency);
             
             case Chip8Versions.SuperChip:
                 return new SuperInterpreter();

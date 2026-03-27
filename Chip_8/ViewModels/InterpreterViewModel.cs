@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Chip_8.Data;
 using Chip_8.Interfaces;
 using Chip_8.Services;
@@ -18,7 +17,11 @@ public partial class InterpreterViewModel : ViewModelBase
     public InterpreterViewModel(InterpreterOptions options, InterpreterService interpreterService)
     {
         _cpu = interpreterService.BuildInterpreter(options, DisplayBuffer);
-        _ = _cpu.RunAsync().ContinueWith(_ => throw new OperationCanceledException());
+        _ = _cpu.RunAsync().ContinueWith(t =>
+        {
+            if (t.IsFaulted)
+                throw t.Exception;
+        });
     }
     
     [RelayCommand]
