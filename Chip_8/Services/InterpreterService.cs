@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using Avalonia.Input;
 using Chip_8.Data;
 using Chip_8.Interfaces;
 using Chip_8.Interpreters;
@@ -10,80 +8,20 @@ namespace Chip_8.Services;
 
 public class InterpreterService(Keyboard keyboardService)
 {
-    private readonly Dictionary<Key, byte> _azertyKeyMap = new()
-    {
-        { Key.X, 0x0 },
-        { Key.D1, 0x1 },
-        { Key.D2, 0x2 },
-        { Key.D3, 0x3 },
-        { Key.A, 0x4 },
-        { Key.Z, 0x5 },
-        { Key.E, 0x6 },
-        { Key.Q, 0x7 },
-        { Key.S, 0x8 },
-        { Key.D, 0x9 },
-        { Key.W, 0xa },
-        { Key.C, 0xb },
-        { Key.D4, 0xc },
-        { Key.R, 0xd },
-        { Key.F, 0xe },
-        { Key.V, 0xf }
-    };
-    
-    private readonly Dictionary<Key, byte> _qwertzKeyMap = new()
-    {
-        { Key.X, 0x0 },
-        { Key.D1, 0x1 },
-        { Key.D2, 0x2 },
-        { Key.D3, 0x3 },
-        { Key.Q, 0x4 },
-        { Key.W, 0x5 },
-        { Key.E, 0x6 },
-        { Key.A, 0x7 },
-        { Key.S, 0x8 },
-        { Key.D, 0x9 },
-        { Key.Y, 0xa },
-        { Key.C, 0xb },
-        { Key.D4, 0xc },
-        { Key.R, 0xd },
-        { Key.F, 0xe },
-        { Key.V, 0xf }
-    };
-
-    private readonly Dictionary<Key, byte> _qwertyKeyMap = new()
-    {
-        { Key.X, 0x0 },
-        { Key.D1, 0x1 },
-        { Key.D2, 0x2 },
-        { Key.D3, 0x3 },
-        { Key.Q, 0x4 },
-        { Key.W, 0x5 },
-        { Key.E, 0x6 },
-        { Key.A, 0x7 },
-        { Key.S, 0x8 },
-        { Key.D, 0x9 },
-        { Key.Z, 0xa },
-        { Key.C, 0xb },
-        { Key.D4, 0xc },
-        { Key.R, 0xd },
-        { Key.F, 0xe },
-        { Key.V, 0xf }
-    };
-
     public IInterpreter BuildInterpreter(InterpreterOptions options, DisplayBuffer displayBuffer)
     {
         switch (options.Layout)
         {
             case KeyPadLayouts.Azerty:
-                keyboardService.KeyMap = _azertyKeyMap;
+                keyboardService.KeyMap = Chip8.AzertyKeyMap;
                 break;
             
             case KeyPadLayouts.Qwertz:
-                keyboardService.KeyMap = _qwertzKeyMap;
+                keyboardService.KeyMap = Chip8.QwertzKeyMap;
                 break;
 
             case KeyPadLayouts.Qwerty:
-                keyboardService.KeyMap = _qwertyKeyMap;
+                keyboardService.KeyMap = Chip8.QwertyKeyMap;
                 break;
             
             default:

@@ -24,7 +24,7 @@ public class Display : Control
         new Vector(96, 96),
         PixelFormat.Bgra8888);
 
-    private readonly DispatcherTimer timer = new()
+    private readonly DispatcherTimer _timer = new()
     {
         Interval = TimeSpan.FromMilliseconds(16.6)
     };
@@ -33,7 +33,7 @@ public class Display : Control
     {
         RenderOptions.SetBitmapInterpolationMode(this, BitmapInterpolationMode.None);
         
-        timer.Tick += (_, _) =>
+        _timer.Tick += (_, _) =>
         {
             if (DisplayBuffer.IsDirty)
             {
@@ -42,14 +42,14 @@ public class Display : Control
             }
         };
 
-        timer.Start();
+        _timer.Start();
 
         base.OnAttachedToVisualTree(e);
     }
 
     protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
     {
-        timer.Stop();
+        _timer.Stop();
         
         base.OnDetachedFromVisualTree(e);
     }
@@ -85,7 +85,7 @@ public class Display : Control
                 }
             }
         }
-
+        
         context.DrawImage(_frame, new Rect(offsetX, offsetY, frameWidth, frameHeight));
 
         base.Render(context);

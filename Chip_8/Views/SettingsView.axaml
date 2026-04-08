@@ -2,18 +2,12 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:c="using:Chip_8.Converters"
              xmlns:vm="using:Chip_8.ViewModels"
              Background="{StaticResource BackgroundColor}"
              Foreground="{StaticResource TextColor}"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:DataType="vm:SettingsViewModel"
              x:Class="Chip_8.Views.SettingsView">
-    
-    <UserControl.Resources>
-        <c:VersionToValueConverter x:Key="VersionToValueConverter"/>
-        <c:LayoutToValueConverter x:Key="LayoutToValueConverter"/>
-    </UserControl.Resources>
     
     <Grid RowDefinitions="*, Auto" Margin="10">
         <Grid ColumnDefinitions="*, *, *"
@@ -26,14 +20,11 @@
                 
                 <Label>Interpreter Version:</Label>
             
-                <ComboBox ItemsSource="{Binding Versions}"
-                        SelectedItem="{Binding SelectedVersion, Converter={StaticResource VersionToValueConverter}}"
-                        HorizontalAlignment="Stretch">
-                    <ComboBox.ItemTemplate>
-                        <DataTemplate>
-                            <TextBlock Text="{Binding Key}"></TextBlock>
-                        </DataTemplate>
-                    </ComboBox.ItemTemplate>
+                <ComboBox SelectedIndex="{Binding SelectedVersion}"
+                          HorizontalAlignment="Stretch">
+                    <ComboBoxItem>Chip8</ComboBoxItem>
+                    <ComboBoxItem>SuperChip</ComboBoxItem>
+                    <ComboBoxItem>XO Chip</ComboBoxItem>
                 </ComboBox>
             </StackPanel>
             <!--Interpreter picker end-->
@@ -45,15 +36,12 @@
                 
                 <Label>KeyPad layout:</Label>
                 
-                <ComboBox ItemsSource="{Binding Layouts}"
-                          SelectedItem="{Binding SelectedLayout, Converter={StaticResource LayoutToValueConverter}}"
+                <ComboBox SelectedIndex="{Binding SelectedLayout}"
                           HorizontalAlignment="Stretch">
-                    <ComboBox.ItemTemplate>
-                        <DataTemplate>
-                            <TextBlock Text="{Binding Key}"></TextBlock>
-                        </DataTemplate>
-                    </ComboBox.ItemTemplate>
-                </ComboBox>  
+                    <ComboBoxItem>qwerty</ComboBoxItem>
+                    <ComboBoxItem>qwertz</ComboBoxItem>
+                    <ComboBoxItem>azerty</ComboBoxItem>
+                </ComboBox>
             </StackPanel>
             <!--Interpreter picker end-->
         

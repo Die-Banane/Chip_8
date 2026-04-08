@@ -1,23 +1,23 @@
 ﻿using CommunityToolkit.Mvvm.Input;
 using System.Threading.Tasks;
 using Chip_8.Interfaces;
+using Chip_8.Services;
 using Chip_8.Views;
-using CommunityToolkit.Mvvm.Messaging;
-using CommunityToolkit.Mvvm.Messaging.Messages;
 
 namespace Chip_8.ViewModels;
 
-partial class MainViewModel(IDialogService dialogService, MainWindow mainWindow) : ViewModelBase
+public partial class MainViewModel(IDialogService dialogService, MainWindow mainWindow, InterpreterService interpreterService, NavigationService navigationService) : ViewModelBase
 {
     [RelayCommand]
     private async Task SetUpInterpreter(string? path = null)
     {
         var result = await dialogService.ShowDialog(new SettingsViewModel(mainWindow, path));
-        
+
         if (result.Confirmed)
-            WeakReferenceMessenger.Default.Send(new InitializeInterpreterMessage(result.Value!));
+        {
+            var interpreterVm = new InterpreterViewModel(result.Value!, interpreterService, navigationService);
             
+            navigationService.NavigateTo(interpreterVm);
+        }
     }
 }
-
-public sealed class InitializeInterpreterMessage(InterpreterOptions value) : ValueChangedMessage<InterpreterOptions>(value);

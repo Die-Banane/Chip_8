@@ -24,8 +24,9 @@ public partial class App : Application
         collection.AddSingleton<IDialogService, DialogService>();
         collection.AddSingleton<InterpreterService>();
         collection.AddSingleton<Keyboard>();
-        collection.AddTransient<MainViewModel>();
+        collection.AddSingleton<MainViewModel>();
         collection.AddSingleton<MainWindow>();
+        collection.AddSingleton<NavigationService>();
         
         var serviceProvider = collection.BuildServiceProvider();
         

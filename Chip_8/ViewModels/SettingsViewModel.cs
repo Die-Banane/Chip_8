@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Platform.Storage;
@@ -13,25 +12,9 @@ namespace Chip_8.ViewModels;
 
 partial class SettingsViewModel : ViewModelBase, IDialog<InterpreterOptions>
 {
-    [ObservableProperty]
-    private ObservableCollection<KeyValuePair<string, Chip8Versions>> _versions =
-    [
-        new("Chip 8 (Legacy)", Chip8Versions.Legacy),
-        new("Super-Chip", Chip8Versions.SuperChip),
-        new("XO-Chip", Chip8Versions.XoChip)
-    ];
-    
-    [ObservableProperty]
-    private ObservableCollection<KeyValuePair<string, KeyPadLayouts>> _layouts =
-    [
-        new("Qwerty", KeyPadLayouts.Qwerty),
-        new("Qwertz", KeyPadLayouts.Qwertz),
-        new("Azerty", KeyPadLayouts.Azerty)
-    ];
-    
     //default settings
-    [ObservableProperty] private Chip8Versions _selectedVersion = Chip8Versions.Legacy;
-    [ObservableProperty] private KeyPadLayouts _selectedLayout = KeyPadLayouts.Qwerty;
+    [ObservableProperty] private int _selectedVersion = (int)Chip8Versions.Legacy;
+    [ObservableProperty] private int _selectedLayout = (int)KeyPadLayouts.Qwerty;
     [ObservableProperty] private int _cpuFrequency = 700;
     [ObservableProperty] private string _path = string.Empty;
     
@@ -75,8 +58,22 @@ partial class SettingsViewModel : ViewModelBase, IDialog<InterpreterOptions>
         if (string.IsNullOrEmpty(Path))
             return DialogResult<InterpreterOptions>.Cancelled();
 
-        return DialogResult<InterpreterOptions>.Ok(new (SelectedVersion, SelectedLayout, Path, CpuFrequency));
+        return DialogResult<InterpreterOptions>.Ok(new((Chip8Versions)SelectedVersion, (KeyPadLayouts)SelectedLayout, Path, CpuFrequency));
     }
+}
+
+public enum Chip8Versions
+{
+    Legacy,
+    SuperChip,
+    XoChip
+}
+    
+public enum KeyPadLayouts
+{
+    Qwerty,
+    Qwertz,
+    Azerty
 }
 
 public record InterpreterOptions(Chip8Versions Version, KeyPadLayouts Layout, string Path, int Frequency);

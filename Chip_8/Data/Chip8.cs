@@ -1,4 +1,7 @@
-﻿namespace Chip_8.Data;
+﻿using System.Collections.Generic;
+using Avalonia.Input;
+
+namespace Chip_8.Data;
 
 static class Chip8
 {
@@ -27,4 +30,66 @@ static class Chip8
         0xF0, 0x80, 0xF0, 0x80, 0xF0, // E
         0xF0, 0x80, 0xF0, 0x80, 0x80  // F
     ];
+
+    #region KeypadLayouts
+    public static readonly Dictionary<Key, byte> AzertyKeyMap = new()
+    {
+        { Key.X, 0x0 },
+        { Key.D1, 0x1 },
+        { Key.D2, 0x2 },
+        { Key.D3, 0x3 },
+        { Key.A, 0x4 },
+        { Key.Z, 0x5 },
+        { Key.E, 0x6 },
+        { Key.Q, 0x7 },
+        { Key.S, 0x8 },
+        { Key.D, 0x9 },
+        { Key.W, 0xa },
+        { Key.C, 0xb },
+        { Key.D4, 0xc },
+        { Key.R, 0xd },
+        { Key.F, 0xe },
+        { Key.V, 0xf }
+    };
+    
+    public static readonly Dictionary<Key, byte> QwertzKeyMap = new()
+    {
+        { Key.X, 0x0 },
+        { Key.D1, 0x1 },
+        { Key.D2, 0x2 },
+        { Key.D3, 0x3 },
+        { Key.Q, 0x4 },
+        { Key.W, 0x5 },
+        { Key.E, 0x6 },
+        { Key.A, 0x7 },
+        { Key.S, 0x8 },
+        { Key.D, 0x9 },
+        { Key.Y, 0xa },
+        { Key.C, 0xb },
+        { Key.D4, 0xc },
+        { Key.R, 0xd },
+        { Key.F, 0xe },
+        { Key.V, 0xf }
+    };
+
+    public static readonly Dictionary<Key, byte> QwertyKeyMap = new()
+    {
+        { Key.X, 0x0 },
+        { Key.D1, 0x1 },
+        { Key.D2, 0x2 },
+        { Key.D3, 0x3 },
+        { Key.Q, 0x4 },
+        { Key.W, 0x5 },
+        { Key.E, 0x6 },
+        { Key.A, 0x7 },
+        { Key.S, 0x8 },
+        { Key.D, 0x9 },
+        { Key.Z, 0xa },
+        { Key.C, 0xb },
+        { Key.D4, 0xc },
+        { Key.R, 0xd },
+        { Key.F, 0xe },
+        { Key.V, 0xf }
+    };
+    #endregion
 }

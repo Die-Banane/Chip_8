@@ -95,7 +95,7 @@ public class LegacyInterpreter : IInterpreter
                     if (now - nextClockTick > ticksPerInstruction) //correct possible drift
                         nextClockTick = now;
                 }
-                else //halt the cpu if we need to
+                else
                     Thread.SpinWait(20);
             }
         
