@@ -20,11 +20,9 @@
                 
                 <Label>Interpreter Version:</Label>
             
-                <ComboBox SelectedIndex="{Binding SelectedVersion}"
+                <ComboBox ItemsSource="{Binding Versions}"
+                          SelectedItem="{Binding SelectedVersion}"
                           HorizontalAlignment="Stretch">
-                    <ComboBoxItem>Chip8</ComboBoxItem>
-                    <ComboBoxItem>SuperChip</ComboBoxItem>
-                    <ComboBoxItem>XO Chip</ComboBoxItem>
                 </ComboBox>
             </StackPanel>
             <!--Interpreter picker end-->
@@ -36,11 +34,9 @@
                 
                 <Label>KeyPad layout:</Label>
                 
-                <ComboBox SelectedIndex="{Binding SelectedLayout}"
-                          HorizontalAlignment="Stretch">
-                    <ComboBoxItem>qwerty</ComboBoxItem>
-                    <ComboBoxItem>qwertz</ComboBoxItem>
-                    <ComboBoxItem>azerty</ComboBoxItem>
+                <ComboBox ItemsSource="{Binding Layouts}"
+                        SelectedItem="{Binding SelectedLayout}"
+                        HorizontalAlignment="Stretch">
                 </ComboBox>
             </StackPanel>
             <!--Interpreter picker end-->

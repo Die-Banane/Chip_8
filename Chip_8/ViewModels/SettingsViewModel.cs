@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Platform.Storage;
@@ -12,9 +13,14 @@ namespace Chip_8.ViewModels;
 
 partial class SettingsViewModel : ViewModelBase, IDialog<InterpreterOptions>
 {
+    [ObservableProperty]
+    IEnumerable<Chip8Versions> _versions = Enum.GetValues<Chip8Versions>();
+    [ObservableProperty]
+    IEnumerable<KeyPadLayouts> _layouts = Enum.GetValues<KeyPadLayouts>();
+
     //default settings
-    [ObservableProperty] private int _selectedVersion = (int)Chip8Versions.Legacy;
-    [ObservableProperty] private int _selectedLayout = (int)KeyPadLayouts.Qwerty;
+    [ObservableProperty] private Chip8Versions _selectedVersion = Chip8Versions.Legacy;
+    [ObservableProperty] private KeyPadLayouts _selectedLayout = KeyPadLayouts.Qwerty;
     [ObservableProperty] private int _cpuFrequency = 700;
     [ObservableProperty] private string _path = string.Empty;
     
@@ -58,7 +64,10 @@ partial class SettingsViewModel : ViewModelBase, IDialog<InterpreterOptions>
         if (string.IsNullOrEmpty(Path))
             return DialogResult<InterpreterOptions>.Cancelled();
 
-        return DialogResult<InterpreterOptions>.Ok(new((Chip8Versions)SelectedVersion, (KeyPadLayouts)SelectedLayout, Path, CpuFrequency));
+        return DialogResult<InterpreterOptions>.Ok(new(SelectedVersion,
+            SelectedLayout,
+            Path,
+            CpuFrequency));
     }
 }
 

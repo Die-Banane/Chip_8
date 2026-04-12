@@ -30,7 +30,7 @@ static class Chip8
         0xF0, 0x80, 0xF0, 0x80, 0xF0, // E
         0xF0, 0x80, 0xF0, 0x80, 0x80  // F
     ];
-
+    
     #region KeypadLayouts
     public static readonly Dictionary<Key, byte> AzertyKeyMap = new()
     {
